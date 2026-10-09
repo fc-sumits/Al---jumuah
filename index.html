@@ -179,6 +179,18 @@ main{flex:1;max-width:1100px;margin:0 auto;padding:1.5rem 1rem;width:100%}
 [data-theme="dark"] .charity-name{color:var(--accent-gold)}
 .charity-desc{font-size:.85rem;color:var(--text-secondary);line-height:1.6;margin-bottom:.75rem}
 .charity-tag{display:inline-block;font-size:.7rem;padding:.2rem .6rem;border-radius:999px;background:var(--border-subtle);color:var(--text-secondary);font-weight:600;letter-spacing:.03em}
+.garden-card{background:linear-gradient(135deg,rgba(11,61,46,.08),rgba(201,162,39,.06));border:1px solid var(--accent-gold);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:1.5rem}
+[data-theme="dark"] .garden-card{background:linear-gradient(135deg,rgba(42,138,106,.12),rgba(212,175,55,.08))}
+.garden-stats{display:flex;justify-content:space-around;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
+.garden-stat{text-align:center;flex:1;min-width:100px}
+.garden-stat-value{font-size:1.8rem;font-weight:700;color:var(--accent-gold);line-height:1.1}
+.garden-stat-label{font-size:.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-top:.25rem}
+.garden-grid{display:flex;justify-content:center;gap:.35rem;flex-wrap:wrap;margin-bottom:.75rem;padding:.5rem;background:var(--bg-card);border-radius:var(--radius-sm)}
+.garden-plant{font-size:1.4rem;line-height:1;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--bg-primary);transition:var(--transition-smooth)}
+.garden-plant.full{background:linear-gradient(135deg,rgba(201,162,39,.25),rgba(201,162,39,.1));box-shadow:0 0 12px rgba(201,162,39,.25)}
+.garden-plant.partial{background:rgba(42,138,106,.15)}
+.garden-plant.empty{color:var(--text-secondary);opacity:.5}
+.garden-hint{text-align:center;font-size:.75rem;color:var(--text-secondary);font-style:italic}
 .loading{text-align:center;padding:2rem;color:var(--text-secondary)}
 .daily-welcome{display:flex;align-items:center;justify-content:center;min-height:50vh;padding:2rem 1rem}
 .welcome-card{text-align:center;max-width:500px;padding:2rem;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);box-shadow:var(--shadow-soft)}
@@ -259,6 +271,8 @@ main{flex:1;max-width:1100px;margin:0 auto;padding:1.5rem 1rem;width:100%}
 .celebration-arabic{font-size:1.8rem}
 .countdown-time{font-size:1.15rem}
 .kahf-verse{padding:.85rem}
+.garden-stat-value{font-size:1.5rem}
+.garden-plant{font-size:1.2rem;width:28px;height:28px}
 }
 </style>
 </head>
@@ -324,6 +338,7 @@ main{flex:1;max-width:1100px;margin:0 auto;padding:1.5rem 1rem;width:100%}
 
   <div id="dhikr-section" class="page-section" hidden>
     <h2 class="section-title">📿 Dhikr & Adhkar</h2>
+    <div class="garden-card" id="garden-card"></div>
     <div class="dhikr-tabs">
       <button class="dhikr-tab active" data-tab="daily" onclick="window.dhikrManager.switchTab('daily')">🌙 Daily</button>
       <button class="dhikr-tab" data-tab="morning" onclick="window.dhikrManager.switchTab('morning')">🌅 Morning</button>
@@ -696,6 +711,7 @@ kahfPlayAyah(ayahNum,false);
 
 function showSection(name){
 ['home','quran','hadith','dhikr','links'].forEach(s=>{const el=document.getElementById(s+'-section');if(el)el.hidden=(s!==name)});
+if(name==='dhikr'&&window.gardenManager)window.gardenManager.render();
 window.scrollTo({top:0,behavior:'smooth'})}
 
 function showHome(){showSection('home')}
@@ -884,14 +900,57 @@ window.deleteComment=async function(commentId,hadithKey){
   }catch(e){console.log(e);showToast('Could not delete')}
 };
 
+class GardenManager{
+constructor(){this.streak=0;this.totalDhikr=0;this.log={};this.saveTimer=null}
+dateKey(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+async load(){const user=window.__currentUser;const db=getDb();if(!user||!db){this.render();return}
+try{const snap=await db.collection('users').doc(user.uid).collection('dhikrLog').orderBy('__name__','desc').limit(60).get();
+this.log={};let total=0;
+snap.forEach(doc=>{const data=doc.data();this.log[doc.id]=data;total+=(data.totalTaps||0)});
+this.totalDhikr=total;this.computeStreak();this.render()}
+catch(e){console.log('garden load failed',e);this.render()}}
+computeStreak(){const today=new Date();let streak=0;
+for(let i=0;i<90;i++){const d=new Date(today);d.setDate(d.getDate()-i);const key=this.dateKey(d);const entry=this.log[key];
+if(entry&&entry.dailyCount>=6){streak++}
+else if(i===0){continue}
+else{break}}
+this.streak=streak}
+async recordProgress(){const user=window.__currentUser;const db=getDb();if(!user||!db)return;
+const today=this.dateKey(new Date());const dm=window.dhikrManager;
+const dailyItems=DHIKR_DATA.daily,morningItems=DHIKR_DATA.morning,eveningItems=DHIKR_DATA.evening;
+let dailyCount=0,morningCount=0,eveningCount=0,totalTaps=0;
+dailyItems.forEach(d=>{if(dm.getCount(d.id)>=d.target)dailyCount++});
+morningItems.forEach(d=>{if(dm.getCount(d.id)>=d.target)morningCount++});
+eveningItems.forEach(d=>{if(dm.getCount(d.id)>=d.target)eveningCount++});
+Object.values(dm.counts.counts).forEach(v=>totalTaps+=v);
+try{await db.collection('users').doc(user.uid).collection('dhikrLog').doc(today).set({dailyCount,morningCount,eveningCount,totalTaps,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+this.log[today]={dailyCount,morningCount,eveningCount,totalTaps};
+this.computeStreak();let total=0;Object.values(this.log).forEach(e=>total+=(e.totalTaps||0));this.totalDhikr=total;this.render()}
+catch(e){console.log('garden save failed',e)}}
+scheduleSave(){if(this.saveTimer)clearTimeout(this.saveTimer);this.saveTimer=setTimeout(()=>{this.saveTimer=null;this.recordProgress()},3000)}
+render(){const el=document.getElementById('garden-card');if(!el)return;
+const user=window.__currentUser;
+if(!user){el.innerHTML=`<div style="text-align:center;padding:.5rem;color:var(--text-secondary);font-size:.85rem">🌱 <a onclick="window.__authOpenModal('login')" style="color:var(--accent-gold);cursor:pointer;text-decoration:underline;font-weight:600">Sign in</a> to grow your dhikr garden and track your streak</div>`;return}
+const days=[];const today=new Date();
+for(let i=13;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const key=this.dateKey(d);const entry=this.log[key];
+let icon='·';let cls='empty';
+if(entry){if(entry.dailyCount>=6){icon='🌳';cls='full'}else if(entry.totalTaps>0){icon='🌿';cls='partial'}}
+days.push({icon,cls,key})}
+el.innerHTML=`<div class="garden-stats">
+<div class="garden-stat"><div class="garden-stat-value">${this.streak} 🔥</div><div class="garden-stat-label">Day Streak</div></div>
+<div class="garden-stat"><div class="garden-stat-value">${this.totalDhikr} 🌱</div><div class="garden-stat-label">Total Dhikr</div></div>
+</div>
+<div class="garden-grid">${days.map(d=>`<span class="garden-plant ${d.cls}" title="${d.key}">${d.icon}</span>`).join('')}</div>
+<div class="garden-hint">Complete all 6 daily dhikr to grow a 🌳</div>`}}
+
 class DhikrManager{
 constructor(){this.currentTab='daily';this.todayKey=this.getTodayKey();this.counts=this.loadCounts();this.render()}
 getTodayKey(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 loadCounts(){try{const stored=JSON.parse(localStorage.getItem('dhikr-counts')||'{}');if(stored.date!==this.todayKey)return{date:this.todayKey,counts:{}};return stored}catch{return{date:this.todayKey,counts:{}}}}
 saveCounts(){localStorage.setItem('dhikr-counts',JSON.stringify(this.counts))}
 getCount(id){return this.counts.counts[id]||0}
-increment(id,target){const current=this.getCount(id);if(current>=target)return;this.counts.counts[id]=current+1;this.saveCounts();const justCompleted=(current+1)>=target;this.updateCard(id,target,justCompleted);this.updateSummary();if(justCompleted)this.checkTabCompletion()}
-reset(id,target){this.counts.counts[id]=0;this.saveCounts();this.updateCard(id,target,false);this.updateSummary()}
+increment(id,target){const current=this.getCount(id);if(current>=target)return;this.counts.counts[id]=current+1;this.saveCounts();const justCompleted=(current+1)>=target;this.updateCard(id,target,justCompleted);this.updateSummary();if(window.gardenManager)window.gardenManager.scheduleSave();if(justCompleted)this.checkTabCompletion()}
+reset(id,target){this.counts.counts[id]=0;this.saveCounts();this.updateCard(id,target,false);this.updateSummary();if(window.gardenManager)window.gardenManager.scheduleSave()}
 switchTab(tab){this.currentTab=tab;document.querySelectorAll('.dhikr-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));this.renderList();this.updateSummary()}
 render(){this.renderList();this.updateSummary()}
 buildCompletionMessageHtml(virtue){return`<div class="dhikr-completion-msg"><span class="msg-dua">بارك الله فيك</span><div class="msg-english">May Allah accept your dhikr</div><div class="msg-virtue">${virtue}</div></div>`}
@@ -937,6 +996,7 @@ renderHome();
 window.quranReader=new QuranReader();
 window.hadithBrowser=new HadithBrowser();
 window.dhikrManager=new DhikrManager();
+window.gardenManager=new GardenManager();
 setupPWA();
 });
 </script>
@@ -1041,6 +1101,10 @@ setupPWA();
     updateAuthUI(user);
     window.__currentUser = user;
     console.log('Auth state:', user ? user.email : 'signed out');
+    if (window.gardenManager) {
+      if (user) window.gardenManager.load();
+      else window.gardenManager.render();
+    }
   });
 })();
 </script>
@@ -1320,4 +1384,4 @@ setupPWA();
 })();
 </script>
 </body>
-            </html>
+  </html>
