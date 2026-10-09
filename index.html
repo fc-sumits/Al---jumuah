@@ -210,9 +210,13 @@ main{flex:1;max-width:1100px;margin:0 auto;padding:1.5rem 1rem;width:100%}
 .kahf-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,162,39,.4)}
 .kahf-btn.stop{background:transparent;color:var(--accent-gold);border:1px solid var(--accent-gold)}
 .kahf-verse{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1rem;margin-bottom:.75rem;transition:var(--transition-smooth);scroll-margin-top:80px}
+.kahf-verse.playing{border-color:var(--accent-gold);box-shadow:0 0 0 2px rgba(201,162,39,.25),0 0 30px rgba(201,162,39,.2);background:linear-gradient(135deg,rgba(201,162,39,.06),transparent)}
 .kahf-verse-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
 .kahf-verse-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent-emerald);color:#fff;font-size:.75rem;font-weight:600}
 [data-theme="dark"] .kahf-verse-num{background:var(--accent-gold);color:#0A0F0D}
+.kahf-play-btn{background:transparent;border:1px solid var(--border-subtle);border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--text-secondary);transition:var(--transition-smooth)}
+.kahf-play-btn:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.kahf-play-btn.playing{background:var(--accent-gold);color:#fff;border-color:var(--accent-gold)}
 .kahf-arabic{font-family:var(--font-arabic);font-size:clamp(1.2rem,3.3vw,1.6rem);line-height:2;text-align:right;direction:rtl;color:var(--accent-emerald);margin-bottom:.5rem}
 [data-theme="dark"] .kahf-arabic{color:var(--accent-gold)}
 .kahf-translit{font-size:.85rem;font-style:italic;color:var(--accent-emerald);margin-bottom:.5rem;line-height:1.6}
@@ -277,6 +281,7 @@ main{flex:1;max-width:1100px;margin:0 auto;padding:1.5rem 1rem;width:100%}
           <option value="ar.alafasy">Mishary Alafasy</option>
           <option value="ar.husary">Mahmoud Al-Husary</option>
           <option value="ar.minshawi">Al-Minshawi</option>
+          <option value="ar.saoodshuraym">Saud Al-Shuraim</option>
         </select>
       </div>
       <div class="control-group" style="justify-content:flex-end">
@@ -456,6 +461,13 @@ function filterBadWords(text){const BAD=['damn','hell','crap','stupid','idiot','
 
 function showToast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500)}
 
+// ---- Shuraim audio URL helper ----
+function shuraimUrl(surahNum, ayahNum){
+  const s = String(surahNum).padStart(3,'0');
+  const a = String(ayahNum).padStart(3,'0');
+  return `https://everyayah.com/data/Saood_ash-Shuraym_128kbps/${s}${a}.mp3`;
+}
+
 class ThemeManager{
 constructor(){this.currentTheme=localStorage.getItem('theme')||'light';this.currentFont=localStorage.getItem('font')||'nunito';this.applyTheme(this.currentTheme);this.applyFont(this.currentFont);this.injectControls()}
 applyTheme(theme){document.documentElement.setAttribute('data-theme',theme);this.currentTheme=theme;localStorage.setItem('theme',theme);const btn=document.getElementById('theme-toggle');if(btn)btn.textContent=theme==='light'?'🌙':'☀️'}
@@ -476,41 +488,71 @@ const days=Math.floor(diff/86400000);const hours=Math.floor((diff%86400000)/3600
 el.textContent=`${days}d ${String(hours).padStart(2,'0')}h ${String(mins).padStart(2,'0')}m ${String(secs).padStart(2,'0')}s`};
 update();if(countdownInterval)clearInterval(countdownInterval);countdownInterval=setInterval(update,1000)}
 
-// ------ KAHD AUDIO (Sudais full surah) ------
+// ------ KAHF AUDIO (Shuraim verse-by-verse with auto-advance) ------
 let kahfAudio=null;
-let kahfPlaying=false;
+let kahfAutoPlaying=false;
+let kahfCurrentAyah=null;
 
-function kahfTogglePlay(){
-  const btn=document.getElementById('kahf-play-all');
-  if(kahfPlaying&&kahfAudio){
-    kahfAudio.pause();
-    kahfAudio=null;
-    kahfPlaying=false;
-    if(btn)btn.textContent='▶️ Play Full Surah';
-    return;
-  }
-  const audio=new Audio('https://server8.mp3quran.net/sds/018.mp3');
+function kahfPlayAyah(ayahNum,autoAdvance){
+  if(kahfAudio){kahfAudio.pause();kahfAudio=null}
+  document.querySelectorAll('.kahf-verse').forEach(v=>v.classList.remove('playing'));
+  document.querySelectorAll('.kahf-play-btn').forEach(b=>{b.classList.remove('playing');b.textContent='▶'});
+  const verseEl=document.getElementById(`kahf-verse-${ayahNum}`);
+  if(verseEl){verseEl.classList.add('playing');verseEl.scrollIntoView({behavior:'smooth',block:'center'})}
+  const playBtn=verseEl?verseEl.querySelector('.kahf-play-btn'):null;
+  if(playBtn){playBtn.classList.add('playing');playBtn.textContent='❚❚'}
+  kahfCurrentAyah=ayahNum;
+  const audio=new Audio(shuraimUrl(18,ayahNum));
   kahfAudio=audio;
-  kahfPlaying=true;
-  if(btn)btn.textContent='⏸ Pause';
   audio.play().then(()=>{
-    audio.onended=()=>{
-      kahfPlaying=false;
-      kahfAudio=null;
-      if(btn)btn.textContent='▶️ Play Full Surah';
-    };
+    audio.onended=()=>handleAyahEnd(ayahNum,autoAdvance);
   }).catch(()=>{
     showToast('Audio unavailable — check connection');
-    kahfPlaying=false;
-    if(btn)btn.textContent='▶️ Play Full Surah';
+    if(playBtn){playBtn.classList.remove('playing');playBtn.textContent='▶'}
+    kahfAutoPlaying=false;
+    updateKahfPlayButton();
   });
 }
 
-function kahfStop(){
-  if(kahfAudio){kahfAudio.pause();kahfAudio=null;}
-  kahfPlaying=false;
+function handleAyahEnd(ayahNum,autoAdvance){
+  const verseEl=document.getElementById(`kahf-verse-${ayahNum}`);
+  if(verseEl){verseEl.classList.remove('playing');const b=verseEl.querySelector('.kahf-play-btn');if(b){b.classList.remove('playing');b.textContent='▶'}}
+  if(autoAdvance&&ayahNum<110){
+    setTimeout(()=>{
+      if(kahfAutoPlaying)kahfPlayAyah(ayahNum+1,true);
+    },400);
+  }else{
+    kahfAutoPlaying=false;
+    updateKahfPlayButton();
+  }
+}
+
+function updateKahfPlayButton(){
   const btn=document.getElementById('kahf-play-all');
-  if(btn)btn.textContent='▶️ Play Full Surah';
+  if(!btn)return;
+  btn.textContent=kahfAutoPlaying?'⏸ Pause':'▶️ Play Full Surah';
+}
+
+function kahfTogglePlay(){
+  if(kahfAutoPlaying){
+    kahfAutoPlaying=false;
+    if(kahfAudio){kahfAudio.pause();kahfAudio=null}
+    document.querySelectorAll('.kahf-verse').forEach(v=>v.classList.remove('playing'));
+    document.querySelectorAll('.kahf-play-btn').forEach(b=>{b.classList.remove('playing');b.textContent='▶'});
+    updateKahfPlayButton();
+  }else{
+    kahfAutoPlaying=true;
+    updateKahfPlayButton();
+    kahfPlayAyah(1,true);
+  }
+}
+
+function kahfStop(){
+  kahfAutoPlaying=false;
+  if(kahfAudio){kahfAudio.pause();kahfAudio=null}
+  document.querySelectorAll('.kahf-verse').forEach(v=>v.classList.remove('playing'));
+  document.querySelectorAll('.kahf-play-btn').forEach(b=>{b.classList.remove('playing');b.textContent='▶'});
+  updateKahfPlayButton();
 }
 
 function renderHome(){
@@ -538,7 +580,7 @@ container.innerHTML=`
 <section class="kahf-section">
 <div class="kahf-header">
 <h3>📖 Surah Al-Kahf</h3>
-<p>Recited by Sheikh Abdurrahman As-Sudais</p>
+<p>Recited by Sheikh Saud Al-Shuraim</p>
 <div class="kahf-controls">
 <button id="kahf-play-all" class="kahf-btn" onclick="window.kahfTogglePlay()">▶️ Play Full Surah</button>
 <button class="kahf-btn stop" onclick="window.kahfStop()">⏹ Stop</button>
@@ -596,12 +638,21 @@ html+=`
 <div class="kahf-verse" data-ayah="${ayah.numberInSurah}" id="kahf-verse-${ayah.numberInSurah}">
 <div class="kahf-verse-header">
 <span class="kahf-verse-num">${ayah.numberInSurah}</span>
+<button class="kahf-play-btn" data-ayah="${ayah.numberInSurah}" title="Play this verse">▶</button>
 </div>
 <p class="kahf-arabic">${ayah.text}</p>
 ${tr?`<p class="kahf-translit">${tr}</p>`:''}
 <p class="kahf-translation">${eng.text}</p>
 </div>`});
 container.innerHTML=html;
+container.querySelectorAll('.kahf-play-btn').forEach(btn=>{
+btn.addEventListener('click',()=>{
+const ayahNum=parseInt(btn.dataset.ayah);
+if(kahfCurrentAyah===ayahNum&&kahfAudio&&!kahfAudio.paused){kahfStop();return}
+kahfAutoPlaying=false;
+kahfPlayAyah(ayahNum,false);
+});
+});
 }
 
 function showSection(name){
@@ -622,7 +673,12 @@ renderVerses(arabic,english){const c=document.getElementById('quran-verses');con
 let html=`<h3 class="section-title">${arabic.number}. ${arabic.englishName} <span style="font-family:var(--font-arabic);color:var(--accent-gold)">${arabic.name}</span></h3>`;
 if(sn!==1&&sn!==9)html+=`<div class="verse-card bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
 arabic.ayahs.forEach((ayah,i)=>{const trans=english.ayahs[i];const isBm=this.bookmarks.includes(ayah.number);
-const audioUrl=`https://cdn.islamic.network/quran/audio/128/${reciter}/${ayah.number}.mp3`;
+let audioUrl;
+if(reciter==='ar.saoodshuraym'){
+  audioUrl=shuraimUrl(sn,ayah.numberInSurah);
+}else{
+  audioUrl=`https://cdn.islamic.network/quran/audio/128/${reciter}/${ayah.number}.mp3`;
+}
 html+=`<div class="verse-card"><div class="verse-header"><span class="verse-number">${ayah.numberInSurah}</span><div class="verse-actions"><button class="icon-btn play-btn" data-audio="${audioUrl}" data-global-ayah="${ayah.number}" title="Play">▶</button><button class="icon-btn bookmark-btn ${isBm?'bookmarked':''}" data-ayah="${ayah.number}" title="Bookmark">★</button></div></div><p class="verse-arabic">${ayah.text}</p><p class="verse-translation">${trans.text}</p></div>`});
 c.innerHTML=html;this.attachVerseListeners()}
 attachVerseListeners(){document.querySelectorAll('.play-btn').forEach(btn=>{btn.addEventListener('click',()=>{
@@ -748,4 +804,4 @@ setupPWA();
 });
 </script>
 </body>
-</html>
+  </html>
