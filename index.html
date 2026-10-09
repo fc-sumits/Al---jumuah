@@ -490,6 +490,15 @@ function shuraimUrl(surahNum, ayahNum){
   return `https://everyayah.com/data/Saood_ash-Shuraym_128kbps/${s}${a}.mp3`;
 }
 
+function getDb() {
+  try {
+    if (window.firebase && firebase.apps && firebase.apps.length) {
+      return firebase.firestore();
+    }
+  } catch(e) { console.log('Firestore not available', e); }
+  return null;
+}
+
 class ThemeManager{
 constructor(){this.currentTheme=localStorage.getItem('theme')||'light';this.currentFont=localStorage.getItem('font')||'nunito';this.applyTheme(this.currentTheme);this.applyFont(this.currentFont);this.injectControls()}
 applyTheme(theme){document.documentElement.setAttribute('data-theme',theme);this.currentTheme=theme;localStorage.setItem('theme',theme);const btn=document.getElementById('theme-toggle');if(btn)btn.textContent=theme==='light'?'🌙':'☀️'}
@@ -708,18 +717,12 @@ stopCurrentAudio();const audio=new Audio(btn.dataset.audio);
 audio.play().then(()=>{currentAudio=audio;currentPlayBtn=btn;btn.textContent='❚❚';audio.onended=()=>{stopCurrentAudio()}}).catch(()=>{btn.textContent='▶';showToast('Audio unavailable — check connection')})})});
 document.querySelectorAll('.bookmark-btn').forEach(btn=>{btn.addEventListener('click',()=>{const ayah=parseInt(btn.dataset.ayah);const idx=this.bookmarks.indexOf(ayah);if(idx>=0){this.bookmarks.splice(idx,1);btn.classList.remove('bookmarked')}else{this.bookmarks.push(ayah);btn.classList.add('bookmarked')}localStorage.setItem('quran-bookmarks',JSON.stringify(this.bookmarks))})})}}
 
-let db = null;
-try {
-  if (window.firebase && firebase.apps && firebase.apps.length) {
-    db = firebase.firestore();
-  }
-} catch(e) { console.log('Firestore not available', e); }
-
 class HadithBrowser{
 constructor(){this.comments={};this.currentCollectionId=null;this.currentSectionNumber=1;this.renderCollections()}
 renderCollections(){const grid=document.getElementById('collection-grid');grid.innerHTML=HADITH_COLLECTIONS.map(c=>`<div class="collection-card" onclick="window.hadithBrowser.openCollection('${c.id}')"><div class="collection-card-header"><div class="collection-card-title">${c.name}</div><div class="collection-card-arabic">${c.arabic}</div></div><div class="collection-card-count">${c.count.toLocaleString()} hadith</div><div class="collection-card-desc">${c.desc}</div><div class="collection-progress"><div class="collection-progress-bar" style="width:100%"></div></div><div class="collection-card-browse">Browse ›</div></div>`).join('')}
 async loadCommentsForKeys(keys){
   this.comments={};
+  const db = getDb();
   if(!db||!keys||keys.length===0)return;
   try{
     const chunks=[];
@@ -801,8 +804,16 @@ escapeHtml(text){const div=document.createElement('div');div.textContent=text;re
 
 function toggleComments(key){const el=document.getElementById(`comments-${key}`);if(el)el.hidden=!el.hidden}
 
+function buildCommentHtml(c,hadithKey){
+  const isMine=window.__currentUser&&c.userId===window.__currentUser.uid;
+  const name=c.userName||'Anonymous';
+  const when=c.timestamp?new Date(c.timestamp).toLocaleDateString():'';
+  return `<div class="comment-item"><div class="comment-meta">${c.isPublic?'🌍':'🔒'} ${window.hadithBrowser.escapeHtml(name)} · ${when}${isMine?` · <a onclick="window.deleteComment('${c.id}','${hadithKey}')" style="color:#d9534f;cursor:pointer;text-decoration:underline">Delete</a>`:''}</div><div>${window.hadithBrowser.escapeHtml(c.text)}</div></div>`;
+}
+
 async function submitComment(key){
   if(!window.__currentUser){showToast('Please sign in to comment');return}
+  const db = getDb();
   if(!db){showToast('Comments unavailable');return}
   const input=document.getElementById(`input-${key}`);
   if(!input)return;
@@ -834,12 +845,7 @@ async function submitComment(key){
     const card=document.querySelector(`[data-hadith-key="${key}"]`);
     const list=card.querySelector('.comment-list');
     const saved=window.hadithBrowser.comments[key];
-    list.innerHTML=saved.map(c=>{
-      const isMine=window.__currentUser&&c.userId===window.__currentUser.uid;
-      const name=c.userName||'Anonymous';
-      const when=c.timestamp?new Date(c.timestamp).toLocaleDateString():'';
-      return `<div class="comment-item"><div class="comment-meta">${c.isPublic?'🌍':'🔒'} ${window.hadithBrowser.escapeHtml(name)} · ${when}${isMine?` · <a onclick="window.deleteComment('${c.id}','${key}')" style="color:#d9534f;cursor:pointer;text-decoration:underline">Delete</a>`:''}</div><div>${window.hadithBrowser.escapeHtml(c.text)}</div></div>`;
-    }).join('');
+    list.innerHTML=saved.map(c=>buildCommentHtml(c,key)).join('');
     const toggleBtn=card.querySelector('.hadith-toggle');
     toggleBtn.textContent=`💬 Thoughts (${saved.length})`;
     input.value='';
@@ -851,6 +857,7 @@ async function submitComment(key){
 }
 
 window.deleteComment=async function(commentId,hadithKey){
+  const db = getDb();
   if(!db||!window.__currentUser)return;
   if(!confirm('Delete this comment?'))return;
   try{
@@ -861,12 +868,7 @@ window.deleteComment=async function(commentId,hadithKey){
     const card=document.querySelector(`[data-hadith-key="${hadithKey}"]`);
     if(!card)return;
     const list=card.querySelector('.comment-list');
-    list.innerHTML=arr.map(c=>{
-      const isMine=window.__currentUser&&c.userId===window.__currentUser.uid;
-      const name=c.userName||'Anonymous';
-      const when=c.timestamp?new Date(c.timestamp).toLocaleDateString():'';
-      return `<div class="comment-item"><div class="comment-meta">${c.isPublic?'🌍':'🔒'} ${window.hadithBrowser.escapeHtml(name)} · ${when}${isMine?` · <a onclick="window.deleteComment('${c.id}','${hadithKey}')" style="color:#d9534f;cursor:pointer;text-decoration:underline">Delete</a>`:''}</div><div>${window.hadithBrowser.escapeHtml(c.text)}</div></div>`;
-    }).join('')||'<div style="font-size:.85rem;color:var(--text-secondary)">No thoughts yet. Be the first to share.</div>';
+    list.innerHTML=arr.map(c=>buildCommentHtml(c,hadithKey)).join('')||'<div style="font-size:.85rem;color:var(--text-secondary)">No thoughts yet. Be the first to share.</div>';
     const toggleBtn=card.querySelector('.hadith-toggle');
     toggleBtn.textContent=`💬 Thoughts (${arr.length})`;
     showToast('Deleted');
@@ -1034,4 +1036,4 @@ setupPWA();
 })();
 </script>
 </body>
-            </html> 
+  </html>
