@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B3D2E">
+<title>Al-Jumu'ah — Your Friday Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-primary:#F5F0E8;--bg-secondary:#FFFFFF;--bg-card:#FFFFFF;--text-primary:#1A1A1A;--text-secondary:#4A4A4A;--accent-gold:#C9A227;--accent-emerald:#0B3D2E;--accent-emerald-light:#1A5C45;--border-subtle:rgba(11,61,46,0.12);--shadow-soft:0 4px 20px rgba(11,61,46,0.08);--shadow-friday:0 8px 40px rgba(201,162,39,0.15);--friday-glow:rgba(201,162,39,0.25);--friday-gradient:linear-gradient(135deg,#0B3D2E 0%,#1A5C45 50%,#0B3D2E 100%);--font-arabic:'Amiri',serif;--font-heading:'Nunito',sans-serif;--font-body:'Nunito',sans-serif;--radius-sm:6px;--radius-md:12px;--radius-lg:20px;--transition-smooth:all .3s cubic-bezier(.4,0,.2,1)}
+[data-theme="dark"]{--bg-primary:#0A0F0D;--bg-secondary:#111A16;--bg-card:#16211C;--text-primary:#E8E4DC;--text-secondary:#A8B0A8;--accent-gold:#D4AF37;--accent-emerald:#2A8A6A;--border-subtle:rgba(42,138,106,0.15);--shadow-soft:0 4px 20px rgba(0,0,0,0.3);--shadow-friday:0 8px 40px rgba(212,175,55,0.12);--friday-glow:rgba(212,175,55,0.2)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);line-height:1.7;transition:var(--transition-smooth);min-height:100vh;display:flex;flex-direction:column}
+.site-header{position:sticky;top:0;z-index:100;background:var(--bg-secondary);border-bottom:1px solid var(--border-subtle);padding:.75rem 1rem;backdrop-filter:blur(10px);transition:var(--transition-smooth)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;gap:1rem;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:.5rem;text-decoration:none;color:var(--text-primary);cursor:pointer}
+.logo-arabic{font-family:var(--font-arabic);font-size:1.5rem;color:var(--accent-gold)}
+.logo-text{font-weight:600;font-size:1.1rem}
+.main-nav{display:flex;gap:.75rem;flex-wrap:wrap}
+.nav-link{text-decoration:none;color:var(--text-secondary);font-size:.9rem;padding:.3rem .6rem;border-radius:var(--radius-sm);transition:var(--transition-smooth);cursor:pointer}
+.nav-link:hover,.nav-link.active{color:var(--accent-emerald);background:var(--border-subtle)}
+[data-theme="dark"] .nav-link:hover,[data-theme="dark"] .nav-link.active{color:var(--accent-gold)}
+.theme-controls{display:flex;align-items:center;gap:.5rem}
+.theme-btn{background:transparent;border:1px solid var(--border-subtle);border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:1rem;transition:var(--transition-smooth);display:flex;align-items:center;justify-content:center}
+.theme-btn:hover{border-color:var(--accent-gold);transform:scale(1.05)}
+.font-select{background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:.3rem .5rem;font-size:.8rem;font-family:var(--font-body);cursor:pointer}
+main{flex:1;max-width:1100px;margin:0 auto;padding:1.5rem 1rem;width:100%}
+.friday-hero{position:relative;min-height:75vh;display:flex;align-items:center;justify-content:center;background:var(--friday-gradient);border-radius:var(--radius-lg);margin:1rem auto;overflow:hidden;box-shadow:var(--shadow-friday);animation:fridayFadeIn 1.2s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes fridayFadeIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.friday-pattern-overlay{position:absolute;inset:0;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C9A227' stroke-width='0.8'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3Cpath d='M30 10 L50 30 L30 50 L10 30 Z'/%3E%3Ccircle cx='30' cy='30' r='12'/%3E%3C/g%3E%3C/svg%3E");background-size:60px 60px;pointer-events:none}
+.friday-content{position:relative;z-index:2;text-align:center;padding:2rem 1.5rem;color:#F5F0E8;max-width:700px}
+.friday-badge{display:inline-block;padding:.25rem 1rem;border:1px solid var(--accent-gold);border-radius:999px;color:var(--accent-gold);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:1.5rem;animation:fridayPulse 3s ease-in-out infinite}
+@keyframes fridayPulse{0%,100%{box-shadow:0 0 0 0 var(--friday-glow)}50%{box-shadow:0 0 20px 4px var(--friday-glow)}}
+.friday-quote{margin:1.5rem 0;border:none;padding:0}
+.quote-arabic{font-family:var(--font-arabic);font-size:clamp(1.6rem,5vw,2.6rem);line-height:1.9;color:var(--accent-gold);margin-bottom:1rem;text-shadow:0 2px 20px rgba(201,162,39,.3)}
+.quote-translation{font-size:clamp(1rem,2.5vw,1.2rem);line-height:1.8;color:#E8E4DC;font-style:italic;margin-bottom:.5rem}
+.quote-reference{font-size:.85rem;color:rgba(245,240,232,.7);font-style:normal}
+.share-btn{background:transparent;border:1px solid var(--accent-gold);color:var(--accent-gold);padding:.5rem 1.5rem;border-radius:999px;cursor:pointer;font-size:.9rem;transition:var(--transition-smooth);font-family:var(--font-body)}
+.share-btn:hover{background:var(--accent-gold);color:var(--accent-emerald)}
+.share-feedback{margin-top:.5rem;font-size:.85rem;color:var(--accent-gold)}
+.section-title{font-size:1.5rem;margin-bottom:1rem;color:var(--accent-emerald);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+[data-theme="dark"] .section-title{color:var(--accent-gold)}
+.quran-controls{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;padding:1rem;background:var(--bg-card);border-radius:var(--radius-md);border:1px solid var(--border-subtle)}
+.control-group{display:flex;flex-direction:column;gap:.25rem;flex:1;min-width:140px}
+.control-group label{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary)}
+.control-group select{padding:.5rem;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-body);font-size:.9rem;cursor:pointer}
+.verse-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:1rem;transition:var(--transition-smooth)}
+.verse-card:hover{box-shadow:var(--shadow-soft)}
+.verse-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.verse-number{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--accent-emerald);color:#fff;font-size:.8rem;font-weight:600}
+[data-theme="dark"] .verse-number{background:var(--accent-gold);color:#0A0F0D}
+.verse-actions{display:flex;gap:.5rem}
+.icon-btn{background:transparent;border:1px solid var(--border-subtle);border-radius:50%;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:var(--transition-smooth);color:var(--text-secondary)}
+.icon-btn:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.icon-btn.bookmarked{background:var(--accent-gold);color:#fff;border-color:var(--accent-gold)}
+.verse-arabic{font-family:var(--font-arabic);font-size:clamp(1.3rem,3.5vw,1.8rem);line-height:2;text-align:right;direction:rtl;color:var(--accent-emerald);margin-bottom:.75rem}
+[data-theme="dark"] .verse-arabic{color:var(--accent-gold)}
+.verse-translation{font-size:.95rem;line-height:1.7;color:var(--text-secondary);padding-top:.75rem;border-top:1px dashed var(--border-subtle)}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-bottom:2rem}
+.collection-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.25rem;cursor:pointer;transition:var(--transition-smooth);position:relative;overflow:hidden}
+.collection-card:hover{box-shadow:var(--shadow-soft);border-color:var(--accent-gold);transform:translateY(-2px)}
+.collection-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem}
+.collection-card-title{font-size:1.1rem;font-weight:700;color:var(--text-primary)}
+.collection-card-arabic{font-family:var(--font-arabic);font-size:1.2rem;color:var(--accent-gold);text-align:right;line-height:1.2}
+.collection-card-count{font-size:.8rem;color:var(--text-secondary);margin-bottom:.5rem}
+.collection-card-desc{font-size:.85rem;color:var(--text-secondary);margin-bottom:.75rem}
+.collection-card-browse{font-size:.85rem;color:var(--accent-emerald);font-weight:600;display:flex;align-items:center;gap:.25rem}
+[data-theme="dark"] .collection-card-browse{color:var(--accent-gold)}
+.collection-progress{height:4px;background:var(--border-subtle);border-radius:999px;margin-bottom:.75rem;overflow:hidden}
+.collection-progress-bar{height:100%;background:var(--accent-emerald);border-radius:999px}
+[data-theme="dark"] .collection-progress-bar{background:var(--accent-gold)}
+.hadith-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.back-btn{background:transparent;border:none;color:var(--accent-emerald);font-size:1.5rem;cursor:pointer;padding:.25rem}
+[data-theme="dark"] .back-btn{color:var(--accent-gold)}
+.hadith-search{display:flex;gap:.5rem;margin-bottom:1.5rem;position:relative}
+.hadith-search input{flex:1;padding:.6rem;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-primary);font-family:var(--font-body);font-size:.9rem}
+.hadith-search button{padding:.6rem 1.2rem;background:var(--accent-emerald);color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.9rem;cursor:pointer}
+[data-theme="dark"] .hadith-search button{background:var(--accent-gold);color:#0A0F0D}
+.recent-searches{position:absolute;top:100%;left:0;right:0;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);margin-top:.25rem;z-index:10;max-height:200px;overflow-y:auto;box-shadow:var(--shadow-soft);display:none}
+.recent-searches.show{display:block}
+.recent-searches-header{padding:.5rem .75rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);border-bottom:1px solid var(--border-subtle)}
+.recent-search-item{padding:.6rem .75rem;cursor:pointer;font-size:.9rem;border-bottom:1px solid var(--border-subtle);transition:var(--transition-smooth)}
+.recent-search-item:last-child{border-bottom:none}
+.recent-search-item:hover{background:var(--bg-primary);color:var(--accent-gold)}
+.hadith-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:1rem;position:relative}
+.hadith-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.hadith-number{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 .5rem;border-radius:6px;background:var(--accent-emerald);color:#fff;font-size:.8rem;font-weight:700}
+[data-theme="dark"] .hadith-number{background:var(--accent-gold);color:#0A0F0D}
+.hadith-text{font-size:.95rem;line-height:1.75;color:var(--text-primary);margin-bottom:1rem}
+.hadith-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--border-subtle);padding-top:.75rem;flex-wrap:wrap;gap:.5rem}
+.grade-badge{padding:.2rem .6rem;border-radius:4px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.grade-sahih{background:#d4edda;color:#155724}
+.grade-hasan{background:#cce5ff;color:#004085}
+.grade-daif{background:#fff3cd;color:#856404}
+.grade-maudu{background:#f8d7da;color:#721c24}
+[data-theme="dark"] .grade-sahih{background:rgba(21,87,36,.4);color:#75b798}
+[data-theme="dark"] .grade-hasan{background:rgba(0,64,133,.4);color:#6ea8fe}
+[data-theme="dark"] .grade-daif{background:rgba(133,100,4,.4);color:#ffda6a}
+[data-theme="dark"] .grade-maudu{background:rgba(114,28,36,.4);color:#ea868f}
+.hadith-toggle{background:transparent;border:none;color:var(--accent-emerald);font-family:var(--font-body);font-size:.85rem;cursor:pointer;padding:.3rem 0;display:flex;align-items:center;gap:.3rem}
+[data-theme="dark"] .hadith-toggle{color:var(--accent-gold)}
+.comments-area{margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--border-subtle)}
+.comment-list{margin-bottom:1rem}
+.comment-item{padding:.75rem;background:var(--bg-primary);border-radius:var(--radius-sm);margin-bottom:.5rem;font-size:.9rem}
+.comment-meta{font-size:.7rem;color:var(--text-secondary);margin-bottom:.25rem}
+.comment-form{display:flex;flex-direction:column;gap:.5rem}
+.comment-form textarea{padding:.6rem;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-body);font-size:.9rem;resize:vertical;min-height:60px}
+.comment-form-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.radio-label{display:flex;align-items:center;gap:.3rem;font-size:.85rem;color:var(--text-secondary);cursor:pointer}
+.comment-submit{padding:.4rem 1rem;background:var(--accent-emerald);color:#fff;border:none;border-radius:999px;font-family:var(--font-body);font-size:.85rem;cursor:pointer}
+[data-theme="dark"] .comment-submit{background:var(--accent-gold);color:#0A0F0D}
+.dhikr-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;background:var(--bg-card);padding:.4rem;border-radius:999px;border:1px solid var(--border-subtle);overflow-x:auto}
+.dhikr-tab{flex:1;padding:.6rem 1rem;border-radius:999px;border:none;background:transparent;color:var(--text-secondary);font-family:var(--font-body);font-size:.9rem;font-weight:600;cursor:pointer;transition:var(--transition-smooth);white-space:nowrap}
+.dhikr-tab.active{background:var(--accent-emerald);color:#fff}
+[data-theme="dark"] .dhikr-tab.active{background:var(--accent-gold);color:#0A0F0D}
+.dhikr-progress-summary{text-align:center;padding:1rem;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);margin-bottom:1.5rem;font-size:.9rem;color:var(--text-secondary)}
+.dhikr-progress-summary strong{color:var(--accent-emerald);font-size:1.2rem}
+[data-theme="dark"] .dhikr-progress-summary strong{color:var(--accent-gold)}
+.dhikr-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.5rem 1.25rem;margin-bottom:1rem;transition:var(--transition-smooth);position:relative}
+.dhikr-card.completed{border-color:var(--accent-gold);box-shadow:0 0 24px rgba(201,162,39,.18)}
+.dhikr-card.completed::before{content:'✓ Done';position:absolute;top:1rem;right:1rem;background:var(--accent-gold);color:#fff;font-size:.7rem;font-weight:700;padding:.2rem .65rem;border-radius:999px;letter-spacing:.05em;animation:dhikrBadgePop .55s cubic-bezier(.34,1.56,.64,1);z-index:2}
+[data-theme="dark"] .dhikr-card.completed::before{color:#0A0F0D}
+@keyframes dhikrBadgePop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.2);opacity:1}100%{transform:scale(1);opacity:1}}
+.dhikr-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;padding-right:70px}
+.dhikr-virtue-badge{font-size:.7rem;padding:.15rem .6rem;border-radius:999px;background:var(--border-subtle);color:var(--text-secondary)}
+.dhikr-arabic{font-family:var(--font-arabic);font-size:clamp(1.3rem,3.5vw,1.7rem);line-height:2.2;text-align:right;direction:rtl;color:var(--accent-emerald);margin-bottom:.5rem}
+[data-theme="dark"] .dhikr-arabic{color:var(--accent-gold)}
+.dhikr-translit{font-size:.85rem;font-style:italic;color:var(--accent-emerald);margin-bottom:.5rem}
+[data-theme="dark"] .dhikr-translit{color:var(--accent-gold)}
+.dhikr-translation{font-size:.95rem;line-height:1.7;color:var(--text-secondary);margin-bottom:.75rem}
+.dhikr-virtue{font-size:.85rem;line-height:1.6;color:var(--text-secondary);padding:.6rem;background:var(--bg-primary);border-radius:var(--radius-sm);margin-bottom:1rem;border-left:3px solid var(--accent-gold)}
+.dhikr-counter-area{display:flex;align-items:center;justify-content:center;gap:1.25rem}
+.dhikr-tap{width:90px;height:90px;border-radius:50%;border:3px solid var(--accent-emerald);background:transparent;color:var(--accent-emerald);font-family:var(--font-body);font-size:1.8rem;font-weight:700;cursor:pointer;transition:var(--transition-smooth);display:flex;align-items:center;justify-content:center;user-select:none;-webkit-tap-highlight-color:transparent;position:relative}
+[data-theme="dark"] .dhikr-tap{border-color:var(--accent-gold);color:var(--accent-gold)}
+.dhikr-tap:active{transform:scale(.92);background:var(--border-subtle)}
+.dhikr-tap.completed{background:var(--accent-gold);color:#fff;border-color:var(--accent-gold);animation:dhikrPop 1.5s cubic-bezier(.34,1.56,.64,1)}
+[data-theme="dark"] .dhikr-tap.completed{color:#0A0F0D}
+@keyframes dhikrPop{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,162,39,.7)}40%{transform:scale(1.25);box-shadow:0 0 0 30px rgba(201,162,39,.3),0 0 60px 20px rgba(201,162,39,.4)}70%{transform:scale(1.1);box-shadow:0 0 0 60px rgba(201,162,39,0)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,162,39,0)}}
+.dhikr-tap.completed::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:3px solid var(--accent-gold);animation:dhikrRing 1.5s cubic-bezier(.2,.8,.4,1);pointer-events:none}
+@keyframes dhikrRing{0%{transform:scale(.9);opacity:1;border-width:6px}100%{transform:scale(2.2);opacity:0;border-width:1px}}
+.confetti-particle{position:absolute;width:10px;height:10px;background:radial-gradient(circle at 30% 30%,#F4D77B,var(--accent-gold));border-radius:50%;pointer-events:none;box-shadow:0 0 8px rgba(201,162,39,.9);animation:confettiFly 1.5s cubic-bezier(.2,.7,.4,1) forwards;z-index:5}
+@keyframes confettiFly{0%{transform:translate(0,0) scale(1);opacity:1}60%{opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(.2);opacity:0}}
+.dhikr-target{text-align:center;font-size:.85rem;color:var(--text-secondary)}
+.dhikr-target strong{display:block;font-size:1.3rem;color:var(--accent-emerald)}
+[data-theme="dark"] .dhikr-target strong{color:var(--accent-gold)}
+.dhikr-reset{background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:.9rem;transition:var(--transition-smooth)}
+.dhikr-reset:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.dhikr-copy{background:transparent;border:none;color:var(--accent-emerald);font-family:var(--font-body);font-size:.8rem;cursor:pointer;padding:.5rem 0;display:block;margin:1rem auto 0;text-decoration:underline;text-underline-offset:3px}
+[data-theme="dark"] .dhikr-copy{color:var(--accent-gold)}
+.dhikr-completion-msg{margin-top:1.25rem;padding:.9rem 1rem;background:linear-gradient(135deg,rgba(201,162,39,.12),rgba(201,162,39,.04));border:1px solid var(--accent-gold);border-radius:var(--radius-sm);animation:dhikrMsgIn .6s cubic-bezier(.4,0,.2,1);text-align:center}
+@keyframes dhikrMsgIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.dhikr-completion-msg .msg-dua{font-family:var(--font-arabic);font-size:1.3rem;color:var(--accent-gold);display:block;margin-bottom:.25rem}
+.dhikr-completion-msg .msg-english{font-size:.9rem;color:var(--text-primary);font-weight:600;margin-bottom:.5rem}
+.dhikr-completion-msg .msg-virtue{font-size:.8rem;color:var(--text-secondary);font-style:italic;line-height:1.55}
+.celebration-overlay{position:fixed;inset:0;background:rgba(11,61,46,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1rem;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.celebration-card{background:linear-gradient(135deg,#0B3D2E 0%,#1A5C45 100%);border:2px solid var(--accent-gold);border-radius:var(--radius-lg);padding:2.5rem 1.5rem;max-width:420px;width:100%;text-align:center;color:#F5F0E8;box-shadow:0 20px 60px rgba(201,162,39,.45);animation:celebrationIn .8s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden}
+.celebration-card::before{content:'';position:absolute;inset:0;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C9A227' stroke-width='0.8'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3Cpath d='M30 10 L50 30 L30 50 L10 30 Z'/%3E%3Ccircle cx='30' cy='30' r='12'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+@keyframes celebrationIn{0%{transform:scale(.6) rotate(-3deg);opacity:0}60%{transform:scale(1.05) rotate(0);opacity:1}100%{transform:scale(1);opacity:1}}
+.celebration-icon{font-size:3rem;display:block;margin-bottom:.75rem;animation:fridayPulse 2.5s infinite;position:relative;z-index:1}
+.celebration-arabic{font-family:var(--font-arabic);font-size:2.1rem;color:var(--accent-gold);display:block;margin-bottom:.5rem;position:relative;z-index:1}
+.celebration-title{font-size:1.4rem;font-weight:700;color:#F5F0E8;margin-bottom:.75rem;position:relative;z-index:1}
+.celebration-lead{font-size:.95rem;color:rgba(245,240,232,.9);margin-bottom:1.25rem;position:relative;z-index:1}
+.celebration-text{font-size:.9rem;color:rgba(245,240,232,.8);line-height:1.7;margin-bottom:1.75rem;font-style:italic;padding:.75rem;border-left:2px solid var(--accent-gold);border-right:2px solid var(--accent-gold);text-align:left;position:relative;z-index:1}
+.celebration-btn{background:var(--accent-gold);color:#0B3D2E;border:none;padding:.75rem 2.25rem;border-radius:999px;font-family:var(--font-body);font-size:.95rem;font-weight:700;cursor:pointer;transition:var(--transition-smooth);position:relative;z-index:1}
+.celebration-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(201,162,39,.5)}
+.charity-section{margin-bottom:2rem}
+.charity-heading{font-size:1.1rem;color:var(--accent-emerald);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--border-subtle)}
+[data-theme="dark"] .charity-heading{color:var(--accent-gold)}
+.charity-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.charity-card{display:block;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.25rem;text-decoration:none;color:var(--text-primary);transition:var(--transition-smooth);position:relative;overflow:hidden}
+.charity-card:hover{border-color:var(--accent-gold);transform:translateY(-3px);box-shadow:var(--shadow-soft)}
+.charity-icon{font-size:2rem;margin-bottom:.5rem}
+.charity-name{font-weight:700;font-size:1rem;margin-bottom:.4rem;color:var(--accent-emerald)}
+[data-theme="dark"] .charity-name{color:var(--accent-gold)}
+.charity-desc{font-size:.85rem;color:var(--text-secondary);line-height:1.6;margin-bottom:.75rem}
+.charity-tag{display:inline-block;font-size:.7rem;padding:.2rem .6rem;border-radius:999px;background:var(--border-subtle);color:var(--text-secondary);font-weight:600;letter-spacing:.03em}
+.loading{text-align:center;padding:2rem;color:var(--text-secondary)}
+.daily-welcome{display:flex;align-items:center;justify-content:center;min-height:50vh;padding:2rem 1rem}
+.welcome-card{text-align:center;max-width:500px;padding:2rem;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);box-shadow:var(--shadow-soft)}
+.welcome-icon{font-size:3rem;display:block;margin-bottom:1rem}
+.welcome-card h2{color:var(--accent-emerald);margin-bottom:.75rem}
+[data-theme="dark"] .welcome-card h2{color:var(--accent-gold)}
+.welcome-card p{color:var(--text-secondary);margin-bottom:.5rem}
+.welcome-hint{font-style:italic;font-size:.9rem;opacity:.8}
+.welcome-actions{display:flex;gap:1rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
+.next-jumuah-countdown{margin-top:1.75rem;padding:1rem;background:linear-gradient(135deg,rgba(11,61,46,.06),rgba(201,162,39,.06));border:1px solid var(--accent-gold);border-radius:var(--radius-md);text-align:center}
+[data-theme="dark"] .next-jumuah-countdown{background:linear-gradient(135deg,rgba(42,138,106,.08),rgba(212,175,55,.08))}
+.countdown-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;color:var(--text-secondary);margin-bottom:.5rem}
+.countdown-time{font-size:1.4rem;font-weight:700;color:var(--accent-gold);font-variant-numeric:tabular-nums;font-family:var(--font-body)}
+.btn-primary,.btn-secondary{padding:.6rem 1.5rem;border-radius:999px;text-decoration:none;font-size:.9rem;cursor:pointer;border:none;transition:var(--transition-smooth);font-family:var(--font-body)}
+.btn-primary{background:var(--accent-emerald);color:#fff}
+.btn-primary:hover{background:var(--accent-emerald-light)}
+.btn-secondary{background:transparent;color:var(--accent-emerald);border:1px solid var(--accent-emerald)}
+.btn-secondary:hover{background:var(--accent-emerald);color:#fff}
+[data-theme="dark"] .btn-secondary{color:var(--accent-gold);border-color:var(--accent-gold)}
+[data-theme="dark"] .btn-secondary:hover{background:var(--accent-gold);color:#0A0F0D}
+.site-footer{text-align:center;padding:1.5rem 1rem;border-top:1px solid var(--border-subtle);color:var(--text-secondary);font-size:.85rem;margin-top:2rem}
+.footer-dua{font-family:var(--font-arabic);color:var(--accent-gold);margin-left:.5rem}
+.bismillah{text-align:center;font-family:var(--font-arabic);font-size:1.5rem;color:var(--accent-gold);padding:1rem;margin-bottom:1rem}
+.kahf-section{margin:2rem auto;max-width:900px}
+.kahf-header{text-align:center;padding:1.5rem 1rem;background:var(--friday-gradient);border-radius:var(--radius-lg);margin-bottom:1.5rem;color:#F5F0E8;position:relative;overflow:hidden}
+.kahf-header::before{content:'';position:absolute;inset:0;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C9A227' stroke-width='0.8'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3Ccircle cx='30' cy='30' r='12'/%3E%3C/g%3E%3C/svg%3E");background-size:60px 60px;pointer-events:none}
+.kahf-header h3{font-size:1.3rem;color:var(--accent-gold);margin-bottom:.25rem;position:relative;z-index:1}
+.kahf-header p{font-size:.85rem;color:rgba(245,240,232,.8);position:relative;z-index:1}
+.kahf-controls{display:flex;justify-content:center;gap:.75rem;margin-top:1rem;position:relative;z-index:1;flex-wrap:wrap}
+.kahf-btn{background:var(--accent-gold);color:#0B3D2E;border:none;padding:.55rem 1.4rem;border-radius:999px;font-family:var(--font-body);font-size:.85rem;font-weight:700;cursor:pointer;transition:var(--transition-smooth)}
+.kahf-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,162,39,.4)}
+.kahf-btn.stop{background:transparent;color:var(--accent-gold);border:1px solid var(--accent-gold)}
+.kahf-verse{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1rem;margin-bottom:.75rem;transition:var(--transition-smooth);scroll-margin-top:80px}
+.kahf-verse.playing{border-color:var(--accent-gold);box-shadow:0 0 0 2px rgba(201,162,39,.25),0 0 30px rgba(201,162,39,.2);background:linear-gradient(135deg,rgba(201,162,39,.06),transparent)}
+.kahf-verse-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.kahf-verse-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent-emerald);color:#fff;font-size:.75rem;font-weight:600}
+[data-theme="dark"] .kahf-verse-num{background:var(--accent-gold);color:#0A0F0D}
+.kahf-play-btn{background:transparent;border:1px solid var(--border-subtle);border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--text-secondary);transition:var(--transition-smooth)}
+.kahf-play-btn:hover{border-color:var(--accent-gold);color:var(--accent-gold)}
+.kahf-play-btn.playing{background:var(--accent-gold);color:#fff;border-color:var(--accent-gold)}
+.kahf-arabic{font-family:var(--font-arabic);font-size:clamp(1.2rem,3.3vw,1.6rem);line-height:2;text-align:right;direction:rtl;color:var(--accent-emerald);margin-bottom:.5rem}
+[data-theme="dark"] .kahf-arabic{color:var(--accent-gold)}
+.kahf-translit{font-size:.85rem;font-style:italic;color:var(--accent-emerald);margin-bottom:.5rem;line-height:1.6}
+[data-theme="dark"] .kahf-translit{color:var(--accent-gold)}
+.kahf-translation{font-size:.92rem;line-height:1.7;color:var(--text-secondary);padding-top:.5rem;border-top:1px dashed var(--border-subtle)}
+.kahf-bismillah{text-align:center;font-family:var(--font-arabic);font-size:1.4rem;color:var(--accent-gold);padding:1rem;margin-bottom:1rem;background:var(--bg-card);border-radius:var(--radius-md);border:1px solid var(--border-subtle)}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent-emerald);color:#fff;padding:.75rem 1.5rem;border-radius:999px;font-size:.85rem;z-index:99999;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:toastIn .3s ease}
+[data-theme="dark"] .toast{background:var(--accent-gold);color:#0A0F0D}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+@media (max-width:600px){
+.header-inner{flex-direction:column;align-items:flex-start}
+.main-nav{width:100%;justify-content:center}
+.friday-content{padding:1.5rem 1rem}
+.friday-hero{min-height:65vh}
+.quran-controls{flex-direction:column}
+.verse-card,.hadith-card,.dhikr-card{padding:1rem}
+.collection-grid{grid-template-columns:1fr}
+.dhikr-tap{width:80px;height:80px;font-size:1.5rem}
+.celebration-card{padding:2rem 1.25rem}
+.celebration-arabic{font-size:1.8rem}
+.countdown-time{font-size:1.15rem}
+.kahf-verse{padding:.85rem}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="logo" onclick="showHome()">
+      <span class="logo-arabic">الجمعة</span>
+      <span class="logo-text">Al-Jumu'ah</span>
+    </a>
+    <nav class="main-nav">
+      <a class="nav-link" onclick="showHome()">Jumu'ah</a>
+      <a class="nav-link" onclick="showSection('quran')">Quran</a>
+      <a class="nav-link" onclick="showSection('hadith')">Hadith</a>
+      <a class="nav-link" onclick="showSection('dhikr')">Dhikr</a>
+      <a class="nav-link" onclick="showSection('links')">Give</a>
+    </nav>
+    <div class="theme-controls" id="theme-controls"></div>
+  </div>
+</header>
+
+<main>
+  <div id="home-section" class="page-section"></div>
+
+  <div id="quran-section" class="page-section" hidden>
+    <h2 class="section-title">📖 Quran Reader</h2>
+    <div class="quran-controls">
+      <div class="control-group">
+        <label for="surah-select">Surah</label>
+        <select id="surah-select"><option value="">Loading...</option></select>
+      </div>
+      <div class="control-group">
+        <label for="script-select">Arabic Script</label>
+        <select id="script-select"><option value="quran-uthmani">Uthmani</option><option value="quran-indopak">IndoPak</option></select>
+      </div>
+      <div class="control-group">
+        <label for="reciter-select">Reciter</label>
+        <select id="reciter-select">
+          <option value="ar.alafasy">Mishary Alafasy</option>
+          <option value="ar.abdulbasitmurattal">Abdul Basit</option>
+          <option value="ar.husary">Mahmoud Al-Husary</option>
+          <option value="ar.minshawi">Al-Minshawi</option>
+          <option value="ar.saudalshuraim">Saud Al-Shuraim</option>
+          <option value="ar.noreenmuhammadsiddiq">Noreen Muhammad Siddiq</option>
+        </select>
+      </div>
+      <div class="control-group" style="justify-content:flex-end">
+        <button id="load-surah-btn" class="btn-primary" style="width:100%;padding:.55rem">Read Surah</button>
+      </div>
+    </div>
+    <div id="quran-verses"></div>
+  </div>
+
+  <div id="hadith-section" class="page-section" hidden>
+    <h2 class="section-title" id="hadith-main-title">📚 Hadith Collections</h2>
+    <div id="hadith-collections-view">
+      <div style="text-align:center;margin-bottom:1.5rem">
+        <button class="btn-primary" onclick="window.hadithBrowser.randomHadith()" style="font-size:1rem;padding:.7rem 2rem">🎲 Random Hadith</button>
+      </div>
+      <div class="collection-grid" id="collection-grid"></div>
+    </div>
+    <div id="hadith-section-view" hidden></div>
+  </div>
+
+  <div id="dhikr-section" class="page-section" hidden>
+    <h2 class="section-title">📿 Dhikr & Adhkar</h2>
+    <div class="dhikr-tabs">
+      <button class="dhikr-tab active" data-tab="daily" onclick="window.dhikrManager.switchTab('daily')">🌙 Daily</button>
+      <button class="dhikr-tab" data-tab="morning" onclick="window.dhikrManager.switchTab('morning')">🌅 Morning</button>
+      <button class="dhikr-tab" data-tab="evening" onclick="window.dhikrManager.switchTab('evening')">🌆 Evening</button>
+    </div>
+    <div class="dhikr-progress-summary" id="dhikr-summary"></div>
+    <div id="dhikr-list"></div>
+  </div>
+
+  <div id="links-section" class="page-section" hidden>
+    <h2 class="section-title">🤲 Give Sadaqah & Zakat</h2>
+    <p style="color:var(--text-secondary);font-size:.9rem;margin-bottom:1.5rem;text-align:center">"The believer's shade on the Day of Resurrection will be his charity." — Tirmidhi</p>
+
+    <div class="charity-section">
+      <h3 class="charity-heading">🇵🇸 Palestine & Gaza</h3>
+      <div class="charity-grid">
+        <a href="https://share.google/ClWPFamutpeCcRnsR" target="_blank" rel="noopener" class="charity-card">
+          <div class="charity-icon">🌳</div>
+          <div class="charity-name">Plant een Olijfboom</div>
+          <div class="charity-desc">Plant an olive tree in Palestine — a sadaqah jariyah for you or a loved one.</div>
+          <div class="charity-tag">Sadaqah Jariyah</div>
+        </a>
+        <a href="https://islamic-relief.org/palestine" target="_blank" rel="noopener" class="charity-card">
+          <div class="charity-icon">🇵🇸</div>
+          <div class="charity-name">Islamic Relief — Palestine</div>
+          <div class="charity-desc">Emergency relief, food, water, and medical aid for the people of Gaza.</div>
+          <div class="charity-tag">Emergency Aid</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="charity-section">
+      <h3 class="charity-heading">🤲 Zakat & Sadaqah</h3>
+      <div class="charity-grid">
+        <a href="https://islamic-relief.org" target="_blank" rel="noopener" class="charity-card">
+          <div class="charity-icon">🕋</div>
+          <div class="charity-name">Islamic Relief</div>
+          <div class="charity-desc">One of the largest Muslim NGOs — zakat-eligible projects worldwide.</div>
+          <div class="charity-tag">Zakat Eligible</div>
+        </a>
+        <a href="https://www.muslimaid.org" target="_blank" rel="noopener" class="charity-card">
+          <div class="charity-icon">🌍</div>
+          <div class="charity-name">Muslim Aid</div>
+          <div class="charity-desc">Serving humanity since 1985 — food, water, orphan care, education.</div>
+          <div class="charity-tag">Zakat Eligible</div>
+        </a>
+        <a href="https://pennyappeal.org" target="_blank" rel="noopener" class="charity-card">
+          <div class="charity-icon">💧</div>
+          <div class="charity-name">Penny Appeal</div>
+          <div class="charity-desc">Water wells, orphan sponsorship, food packs, and emergency relief.</div>
+          <div class="charity-tag">Zakat Eligible</div>
+        </a>
+        <a href="https://humanappeal.org.uk" target="_blank" rel="noopener" class="charity-card">
+          <div class="charity-icon">🌙</div>
+          <div class="charity-name">Human Appeal</div>
+          <div class="charity-desc">Zakat-eligible projects in over 25 countries — orphans, water, food.</div>
+          <div class="charity-tag">Zakat Eligible</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="charity-section">
+      <h3 class="charity-heading">🌐 Crowdfunding for Muslim Causes</h3>
+      <div class="charity-grid">
+        <a href="https://www.launchgood.com" target="_blank" rel="noopener" class="charity-card">
+          <div class="charity-icon">🚀</div>
+          <div class="charity-name">LaunchGood</div>
+          <div class="charity-desc">Crowdfunding platform for Muslim projects worldwide — verified campaigns.</div>
+          <div class="charity-tag">Crowdfunding</div>
+        </a>
+        <a href="https://www.qurbani.com" target="_blank" rel="noopener" class="charity-card">
+          <div class="charity-icon">🐑</div>
+          <div class="charity-name">Qurbani.com</div>
+          <div class="charity-desc">Qurbani and aqiqah services with full transparency and reporting.</div>
+          <div class="charity-tag">Qurbani</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <p>Al-Jumu'ah — Built for the Ummah. <span class="footer-dua">بارك الله فيكم</span></p>
+</footer>
+
+<script>
+window.FIREBASE_CONFIG={apiKey:"AIzaSyC0_UOlhEhdueJLIDrMnE4liCuvPvdpezA",authDomain:"jumah-website.firebaseapp.com",projectId:"jumah-website",storageBucket:"jumah-website.firebasestorage.app",messagingSenderId:"139676383479",appId:"1:139676383479:web:2082e48d30d64f51113bf2",measurementId:"G-7Y1PYBCPY9"};
+
+const FRIDAY_QUOTES=[
+{arabic:"فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ",translation:"So remember Me; I will remember you. And be grateful to Me and do not deny Me.",reference:"Quran 2:152"},
+{arabic:"وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ",translation:"And when My servants ask you concerning Me — indeed I am near. I respond to the invocation of the supplicant when he calls upon Me.",reference:"Quran 2:186"},
+{arabic:"فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا",translation:"For indeed, with hardship [will be] ease. Indeed, with hardship [will be] ease.",reference:"Quran 94:5-6"},
+{arabic:"وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ",translation:"But perhaps you hate a thing and it is good for you.",reference:"Quran 2:216"},
+{arabic:"إِنَّ اللَّهَ مَعَ الصَّابِرِينَ",translation:"Indeed, Allah is with the patient.",reference:"Quran 2:153"},
+{arabic:"وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ",translation:"And He is with you wherever you are.",reference:"Quran 57:4"},
+{arabic:"إِنَّ اللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا مَا بِأَنفُسِهِمْ",translation:"Indeed, Allah will not change the condition of a people until they change what is in themselves.",reference:"Quran 13:11"},
+{arabic:"وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ",translation:"And whoever relies upon Allah — then He is sufficient for him.",reference:"Quran 65:3"},
+{arabic:"أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",translation:"Surely, in the remembrance of Allah do hearts find rest.",reference:"Quran 13:28"},
+{arabic:"رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",translation:"Our Lord, give us in this world good and in the Hereafter good and protect us from the punishment of the Fire.",reference:"Quran 2:201"},
+{arabic:"وَقُل رَّبِّ زِدْنِي عِلْمًا",translation:"And say, 'My Lord, increase me in knowledge.'",reference:"Quran 20:114"},
+{arabic:"إِنَّ اللَّهَ وَمَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ ۚ يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَسَلِّمُوا تَسْلِيمًا",translation:"Indeed, Allah and His angels send blessings upon the Prophet. O you who have believed, ask Allah to confer blessing upon him and ask Allah to grant him peace.",reference:"Quran 33:56"},
+{arabic:"وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ",translation:"And your Lord is going to give you, and you will be satisfied.",reference:"Quran 93:5"},
+{arabic:"إِنَّ مَعِيَ رَبِّي سَيَهْدِينِ",translation:"Indeed, my Lord is with me; He will guide me.",reference:"Quran 26:62"},
+{arabic:"وَاللَّهُ يُحِبُّ الْمُحْسِنِينَ",translation:"And Allah loves the doers of good.",reference:"Quran 3:134"}];
+
+const FONTS=[{id:'nunito',name:'Nunito',family:"'Nunito',sans-serif"},{id:'inter',name:'Inter',family:"'Inter',sans-serif"},{id:'source',name:'Source Sans 3',family:"'Source Sans 3',sans-serif"},{id:'merriweather',name:'Merriweather',family:"'Merriweather',serif"},{id:'lora',name:'Lora',family:"'Lora',serif"}];
+
+const HADITH_COLLECTIONS=[
+{id:'eng-bukhari',name:'Sahih al-Bukhari',arabic:'صحيح البخاري',count:7554,desc:'The most authentic collection, compiled by Imam al-Bukhari.'},
+{id:'eng-muslim',name:'Sahih Muslim',arabic:'صحيح مسلم',count:7360,desc:'The second most authentic collection, compiled by Imam Muslim.'},
+{id:'eng-nasai',name:'Sunan an-Nasa\'i',arabic:'سنن النسائي',count:5679,desc:'One of the six canonical books, known for its rigorous criteria.'},
+{id:'eng-abudawud',name:'Sunan Abi Dawud',arabic:'سنن أبي داود',count:5272,desc:'A canonical collection focused on the hadith of legal rulings.'},
+{id:'eng-tirmidhi',name:'Jami` at-Tirmidhi',arabic:'جامع الترمذي',count:3926,desc:'A canonical collection that records the grade of each narration.'},
+{id:'eng-ibnmajah',name:'Sunan Ibn Majah',arabic:'سنن ابن ماجه',count:4340,desc:'The sixth of the canonical books (Kutub al-Sittah).'},
+{id:'eng-malik',name:'Muwatta Malik',arabic:'موطأ مالك',count:1818,desc:'The earliest collection, compiled by Imam Malik ibn Anas.'},
+{id:'eng-nawawi',name:'An-Nawawi\'s 40 Hadith',arabic:'الأربعون النووية',count:42,desc:'Forty foundational hadith gathered by Imam an-Nawawi.'},
+{id:'eng-qudsi',name:'40 Hadith Qudsi',arabic:'الأربعون القدسية',count:40,desc:'Forty sacred narrations of the words of Allah on the Prophet\'s tongue.'}];
+
+const DHIKR_DATA={
+daily:[
+{id:'d1',arabic:'سُبْحَانَ اللَّهِ',translit:'SubhanAllah',translation:'Glory be to Allah',virtue:'Whoever says it 100 times a day, his sins are wiped away even if they are like the foam of the sea. (Bukhari & Muslim)',target:33},
+{id:'d2',arabic:'الْحَمْدُ لِلَّهِ',translit:'Alhamdulillah',translation:'All praise is due to Allah',virtue:'It fills the scales on the Day of Judgement. (Muslim)',target:33},
+{id:'d3',arabic:'اللَّهُ أَكْبَرُ',translit:'Allahu Akbar',translation:'Allah is the Greatest',virtue:'It fills what is between the heavens and the earth. (Muslim)',target:34},
+{id:'d4',arabic:'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',translit:'La ilaha illallahu wahdahu la sharika lah',translation:'There is no god but Allah alone, He has no partner. His is the dominion and His is the praise, and He is Able to do all things.',virtue:'Whoever says it 100 times a day gets the reward of freeing 100 slaves, 100 good deeds are recorded, 100 sins erased, and it is a protection from Shaytan that day. (Bukhari & Muslim)',target:10},
+{id:'d5',arabic:'أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ',translit:'Astaghfirullaha wa atubu ilayh',translation:'I seek the forgiveness of Allah and I turn to Him in repentance',virtue:'The Prophet ﷺ said: "O people, repent to Allah, for I repent to Him 100 times a day." (Muslim)',target:100},
+{id:'d6',arabic:'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَىٰ نَبِيِّنَا مُحَمَّدٍ',translit:'Allahumma salli wa sallim \'ala nabiyyina Muhammad',translation:'O Allah, send prayers and peace upon our Prophet Muhammad',virtue:'Whoever sends one salah upon me, Allah sends ten upon him. (Muslim)',target:10}],
+morning:[
+{id:'m1',arabic:'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ',translit:'Ayat al-Kursi (2:255)',translation:'Allah — there is no deity except Him, the Ever-Living, the Sustainer of existence...',virtue:'Whoever recites it in the morning is protected from jinn until the evening. (al-Hakim)',target:1},
+{id:'m2',arabic:'قُلْ هُوَ اللَّهُ أَحَدٌ ۝ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ قُلْ أَعُوذُ بِرَبِّ النَّاسِ',translit:'Al-Ikhlas, Al-Falaq, An-Nas',translation:'Three short surahs of protection',virtue:'Reciting them three times in the morning and evening suffices you against everything. (Abu Dawud & Tirmidhi)',target:3},
+{id:'m3',arabic:'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ',translit:'Asbahna wa asbahal-mulku lillah, walhamdulillah',translation:'We have entered a new morning and with it all dominion belongs to Allah. Praise be to Allah.',virtue:'A morning supplication taught by the Prophet ﷺ. (Muslim)',target:1},
+{id:'m4',arabic:'اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ',translit:'Allahumma bika asbahna, wa bika amsayna',translation:'O Allah, by You we enter the morning and by You we enter the evening, by You we live and by You we die, and to You is the final return.',virtue:'A comprehensive morning dua taught by the Prophet ﷺ. (Tirmidhi)',target:1},
+{id:'m5',arabic:'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ',translit:'Sayyidul Istighfar',translation:'O Allah, You are my Lord, there is no god but You...',virtue:'Whoever says it in the morning with conviction and dies that day enters Paradise. (Bukhari)',target:1},
+{id:'m6',arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ',translit:'Allahumma inni as\'aluka al-\'afwa wal-\'afiyah',translation:'O Allah, I ask You for forgiveness and well-being.',virtue:'The Prophet ﷺ never left this dua in the morning or evening. (Abu Dawud)',target:1},
+{id:'m7',arabic:'حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ',translit:'Hasbiyallahu la ilaha illa Huwa',translation:'Allah is sufficient for me. There is no god but He.',virtue:'Whoever says it 7 times, Allah will suffice him for whatever concerns him. (Abu Dawud)',target:7},
+{id:'m8',arabic:'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ',translit:'Bismillahil-ladhi la yadurru ma\'asmihi shay\'',translation:'In the Name of Allah, with whose Name nothing can cause harm.',virtue:'Whoever says it 3 times in the morning, nothing will harm him that day. (Tirmidhi)',target:3},
+{id:'m9',arabic:'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا',translit:'Raditu billahi Rabban, wa bil-Islami dinan',translation:'I am pleased with Allah as my Lord, with Islam as my religion.',virtue:'Whoever says it 3 times in the morning and evening, Allah will surely please him on the Day of Judgement. (Abu Dawud)',target:3},
+{id:'m10',arabic:'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',translit:'SubhanAllahi wa bihamdih',translation:'Glory be to Allah and praise be to Him',virtue:'Whoever says it 100 times in the morning, no one will come on the Day of Judgement with anything better. (Muslim)',target:100},
+{id:'m11',arabic:'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ',translit:'La ilaha illallahu wahdahu la sharika lah',translation:'There is no god but Allah alone, with no partner.',virtue:'Whoever says it 10 times in the morning gets the reward of freeing a slave. (Bukhari)',target:10},
+{id:'m12',arabic:'اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي',translit:'Allahumma \'afini fi badani, wa fi sam\'i',translation:'O Allah, grant my body health. O Allah, grant my hearing health.',virtue:'A morning and evening dua taught by the Prophet ﷺ. (Abu Dawud)',target:3}],
+evening:[
+{id:'e1',arabic:'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ',translit:'Ayat al-Kursi (2:255)',translation:'Allah — there is no deity except Him, the Ever-Living, the Sustainer of existence...',virtue:'Whoever recites it in the evening is protected from jinn until the morning. (al-Hakim)',target:1},
+{id:'e2',arabic:'قُلْ هُوَ اللَّهُ أَحَدٌ ۝ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ قُلْ أَعُوذُ بِرَبِّ النَّاسِ',translit:'Al-Ikhlas, Al-Falaq, An-Nas',translation:'Three short surahs of protection',virtue:'Reciting them three times in the morning and evening suffices you against everything. (Abu Dawud & Tirmidhi)',target:3},
+{id:'e3',arabic:'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ',translit:'Amsayna wa amsal-mulku lillah, walhamdulillah',translation:'We have entered a new evening and with it all dominion belongs to Allah. Praise be to Allah.',virtue:'An evening supplication taught by the Prophet ﷺ. (Muslim)',target:1},
+{id:'e4',arabic:'اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا',translit:'Allahumma bika amsayna, wa bika asbahna',translation:'O Allah, by You we enter the evening and by You we enter the morning.',virtue:'A comprehensive evening dua taught by the Prophet ﷺ. (Tirmidhi)',target:1},
+{id:'e5',arabic:'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ',translit:'Sayyidul Istighfar',translation:'O Allah, You are my Lord, there is no god but You...',virtue:'Whoever says it in the evening with conviction and dies that night enters Paradise. (Bukhari)',target:1},
+{id:'e6',arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ',translit:'Allahumma inni as\'aluka al-\'afwa wal-\'afiyah',translation:'O Allah, I ask You for forgiveness and well-being.',virtue:'The Prophet ﷺ never left this dua in the morning or evening. (Abu Dawud)',target:1},
+{id:'e7',arabic:'أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ',translit:'A\'udhu bikalimatillahit-tammati',translation:'I seek refuge in the perfect words of Allah.',virtue:'Whoever says it 3 times in the evening, no harm will come to him that night. (Muslim)',target:3},
+{id:'e8',arabic:'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ',translit:'Bismillahil-ladhi la yadurru ma\'asmihi shay\'',translation:'In the Name of Allah, with whose Name nothing can cause harm.',virtue:'Whoever says it 3 times in the evening, nothing will harm him that night. (Tirmidhi)',target:3},
+{id:'e9',arabic:'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا',translit:'Raditu billahi Rabban, wa bil-Islami dinan',translation:'I am pleased with Allah as my Lord, with Islam as my religion.',virtue:'Whoever says it 3 times in the evening, Allah will surely please him. (Abu Dawud)',target:3},
+{id:'e10',arabic:'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',translit:'SubhanAllahi wa bihamdih',translation:'Glory be to Allah and praise be to Him',virtue:'Whoever says it 100 times in the evening, no one will come on the Day of Judgement with anything better. (Muslim)',target:100},
+{id:'e11',arabic:'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ',translit:'La ilaha illallahu wahdahu la sharika lah',translation:'There is no god but Allah alone, with no partner.',virtue:'A protection and a treasure from the treasures of Paradise. (Bukhari)',target:10},
+{id:'e12',arabic:'اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي',translit:'Allahumma \'afini fi badani, wa fi sam\'i',translation:'O Allah, grant my body health. O Allah, grant my hearing health.',virtue:'An evening dua taught by the Prophet ﷺ. (Abu Dawud)',target:3}]};
+
+function filterBadWords(text){const BAD=['damn','hell','crap','stupid','idiot','moron','dumb','fool','jerk','hate','shut up','bloody','bastard','shit','fuck','bitch','ass'];let f=text;BAD.forEach(w=>{const r=new RegExp(`\\b${w}\\b`,'gi');f=f.replace(r,'*'.repeat(w.length))});return f}
+
+function showToast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500)}
+
+class ThemeManager{
+constructor(){this.currentTheme=localStorage.getItem('theme')||'light';this.currentFont=localStorage.getItem('font')||'nunito';this.applyTheme(this.currentTheme);this.applyFont(this.currentFont);this.injectControls()}
+applyTheme(theme){document.documentElement.setAttribute('data-theme',theme);this.currentTheme=theme;localStorage.setItem('theme',theme);const btn=document.getElementById('theme-toggle');if(btn)btn.textContent=theme==='light'?'🌙':'☀️'}
+applyFont(fontId){const font=FONTS.find(f=>f.id===fontId)||FONTS[0];document.documentElement.style.setProperty('--font-body',font.family);document.documentElement.style.setProperty('--font-heading',font.family);this.currentFont=fontId;localStorage.setItem('font',fontId)}
+toggleTheme(){this.applyTheme(this.currentTheme==='light'?'dark':'light')}
+injectControls(){const c=document.getElementById('theme-controls');if(!c)return;c.innerHTML=`<button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">${this.currentTheme==='light'?'🌙':'☀️'}</button><select id="font-selector" class="font-select" aria-label="Choose font">${FONTS.map(f=>`<option value="${f.id}" ${f.id===this.currentFont?'selected':''}>${f.name}</option>`).join('')}</select>`;document.getElementById('theme-toggle').addEventListener('click',()=>this.toggleTheme());document.getElementById('font-selector').addEventListener('change',(e)=>this.applyFont(e.target.value))}}
+
+function isFriday(){return new Date().getDay()===5}
+
+function getThisWeeksQuote(){const now=new Date();const start=new Date(now.getFullYear(),0,1);const weekNum=Math.floor(((now-start)/86400000+start.getDay())/7);return FRIDAY_QUOTES[weekNum%FRIDAY_QUOTES.length]}
+
+function getNextFridayAt(){const now=new Date();const day=now.getDay();let daysUntilFriday;if(day===5){daysUntilFriday=7}else if(day<5){daysUntilFriday=5-day}else{daysUntilFriday=6}const next=new Date(now);next.setDate(now.getDate()+daysUntilFriday);next.setHours(0,0,0,0);return next}
+
+let countdownInterval=null;
+function startCountdown(){const el=document.getElementById('countdown-time');if(!el)return;
+const update=()=>{const now=new Date();const target=getNextFridayAt();const diff=target-now;if(diff<=0){el.textContent="It's Friday!";return}
+const days=Math.floor(diff/86400000);const hours=Math.floor((diff%86400000)/3600000);const mins=Math.floor((diff%3600000)/60000);const secs=Math.floor((diff%60000)/1000);
+el.textContent=`${days}d ${String(hours).padStart(2,'0')}h ${String(mins).padStart(2,'0')}m ${String(secs).padStart(2,'0')}s`};
+update();if(countdownInterval)clearInterval(countdownInterval);countdownInterval=setInterval(update,1000)}
+
+let kahfAudio=null;let kahfAutoPlaying=false;let kahfCurrentAyah=null;
+
+function getKahfAudioUrl(surahNum,ayahNum,globalAyah){
+const surahPadded=String(surahNum).padStart(3,'0');
+const ayahPadded=String(ayahNum).padStart(3,'0');
+return{surahPadded,ayahPadded,primary:`https://everyayah.com/data/Saud_Al_Shuraim_128kbps/${surahPadded}${ayahPadded}.mp3`,fallback:`https://cdn.islamic.network/quran/audio/128/ar.husary/${globalAyah}.mp3`}}
+
+function renderHome(){
+const container=document.getElementById('home-section');
+if(!container)return;
+if(isFriday()){
+const quote=getThisWeeksQuote();
+const shareUrl=window.location.origin+window.location.pathname+'?jumuah='+new Date().toISOString().slice(0,10);
+container.innerHTML=`
+<section class="friday-hero">
+<div class="friday-pattern-overlay"></div>
+<div class="friday-content">
+<span class="friday-badge">Jumu'ah Mubarak</span>
+<blockquote class="friday-quote">
+<p class="quote-arabic">${quote.arabic}</p>
+<p class="quote-translation">"${quote.translation}"</p>
+<cite class="quote-reference">— ${quote.reference} (Sahih International)</cite>
+</blockquote>
+<div class="friday-share">
+<button id="share-friday" class="share-btn">🔗 Share this Jumu'ah menu</button>
+<div id="share-feedback" class="share-feedback" hidden>Link copied to clipboard</div>
+</div>
+</div>
+</section>
+<section class="kahf-section">
+<div class="kahf-header">
+<h3>📖 Surah Al-Kahf</h3>
+<p>Recited by Sheikh Saud Al-Shuraim</p>
+<div class="kahf-controls">
+<button id="kahf-play-all" class="kahf-btn" onclick="window.kahfTogglePlayAll()">▶️ Play Full Surah</button>
+<button class="kahf-btn stop" onclick="window.kahfStop()">⏹ Stop</button>
+</div>
+</div>
+<div id="kahf-verses"><div class="loading">Loading Surah Al-Kahf...</div></div>
+</section>`;
+const shareBtn=document.getElementById('share-friday');
+if(shareBtn)shareBtn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(shareUrl);const fb=document.getElementById('share-feedback');fb.hidden=false;setTimeout(()=>fb.hidden=true,2500)}catch{prompt('Copy this link:',shareUrl)}});
+loadKahfVerses();
+}else{
+container.innerHTML=`
+<section class="daily-welcome">
+<div class="welcome-card">
+<span class="welcome-icon">🕌</span>
+<h2>Welcome to Al-Jumu'ah</h2>
+<p>Your companion for Quran, Hadith, Dhikr, and Sadaqah.</p>
+<p class="welcome-hint">The special Jumu'ah menu returns on Friday, in sha Allah.</p>
+<div class="welcome-actions">
+<button class="btn-primary" onclick="showSection('quran')">Read Quran</button>
+<button class="btn-secondary" onclick="showSection('dhikr')">Daily Dhikr</button>
+</div>
+<div class="next-jumuah-countdown">
+<div class="countdown-label">Next Jumu'ah in</div>
+<div class="countdown-time" id="countdown-time">—</div>
+</div>
+</div>
+</section>`;
+startCountdown()}
+container.hidden=false}
+
+async function loadKahfVerses(){
+const container=document.getElementById('kahf-verses');
+if(!container)return;
+try{
+const res=await fetch('https://api.alquran.cloud/v1/surah/18/editions/quran-uthmani,en.sahih,en.transliteration');
+const data=await res.json();
+const arabic=data.data[0];
+const english=data.data[1];
+const translit=data.data[2];
+renderKahfVerses(arabic,english,translit);
+}catch(e){
+try{
+const res2=await fetch('https://api.alquran.cloud/v1/surah/18/editions/quran-uthmani,en.sahih');
+const data2=await res2.json();
+renderKahfVerses(data2.data[0],data2.data[1],null);
+}catch(e2){
+container.innerHTML='<div class="loading">Could not load Surah Al-Kahf. Please check your connection.</div>'}
+}}
+
+function renderKahfVerses(arabic,english,translit){
+const container=document.getElementById('kahf-verses');
+let html=`<div class="kahf-bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+arabic.ayahs.forEach((ayah,i)=>{
+const eng=english.ayahs[i];
+const tr=translit?translit.ayahs[i].text:'';
+html+=`
+<div class="kahf-verse" data-ayah="${ayah.numberInSurah}" data-global="${ayah.number}" id="kahf-verse-${ayah.numberInSurah}">
+<div class="kahf-verse-header">
+<span class="kahf-verse-num">${ayah.numberInSurah}</span>
+<button class="kahf-play-btn" data-ayah="${ayah.numberInSurah}" data-global="${ayah.number}" title="Play this verse">▶</button>
+</div>
+<p class="kahf-arabic">${ayah.text}</p>
+${tr?`<p class="kahf-translit">${tr}</p>`:''}
+<p class="kahf-translation">${eng.text}</p>
+</div>`});
+container.innerHTML=html;
+container.querySelectorAll('.kahf-play-btn').forEach(btn=>{
+btn.addEventListener('click',()=>{
+const ayahNum=parseInt(btn.dataset.ayah);
+if(kahfCurrentAyah===ayahNum&&kahfAudio&&!kahfAudio.paused){kahfStop();return}
+kahfPlayAyah(ayahNum,parseInt(btn.dataset.global),false)})})}
+
+function kahfPlayAyah(ayahNum,globalAyah,autoAdvance){
+if(kahfAudio){kahfAudio.pause();kahfAudio=null}
+document.querySelectorAll('.kahf-verse').forEach(v=>v.classList.remove('playing'));
+document.querySelectorAll('.kahf-play-btn').forEach(b=>{b.classList.remove('playing');b.textContent='▶'});
+const verseEl=document.getElementById(`kahf-verse-${ayahNum}`);
+if(verseEl){verseEl.classList.add('playing');verseEl.scrollIntoView({behavior:'smooth',block:'center'})}
+const playBtn=verseEl?verseEl.querySelector('.kahf-play-btn'):null;
+if(playBtn){playBtn.classList.add('playing');playBtn.textContent='❚❚'}
+kahfCurrentAyah=ayahNum;
+const urls=getKahfAudioUrl(18,ayahNum,globalAyah);
+const audio=new Audio(urls.primary);
+kahfAudio=audio;
+const tryFallback=()=>{
+const fb=new Audio(urls.fallback);
+kahfAudio=fb;
+fb.play().then(()=>{
+fb.onended=()=>handleAyahEnd(ayahNum,autoAdvance)}).catch(()=>{
+showToast('Audio unavailable — try again when online');
+kahfStop()})};
+audio.play().then(()=>{
+audio.onended=()=>handleAyahEnd(ayahNum,autoAdvance)}).catch(tryFallback)}
+
+function handleAyahEnd(ayahNum,autoAdvance){
+const verseEl=document.getElementById(`kahf-verse-${ayahNum}`);
+if(verseEl){verseEl.classList.remove('playing');const b=verseEl.querySelector('.kahf-play-btn');if(b){b.classList.remove('playing');b.textContent='▶'}}
+if(autoAdvance&&ayahNum<110){setTimeout(()=>{
+const nextEl=document.getElementById(`kahf-verse-${ayahNum+1}`);
+if(nextEl){const globalAyah=parseInt(nextEl.dataset.global);kahfPlayAyah(ayahNum+1,globalAyah,true)}},400)}else{kahfAutoPlaying=false;updateKahfPlayButton()}}
+
+function updateKahfPlayButton(){const btn=document.getElementById('kahf-play-all');if(!btn)return;btn.textContent=kahfAutoPlaying?'⏸ Pause':'▶️ Play Full Surah'}
+
+function kahfTogglePlayAll(){
+if(kahfAutoPlaying){kahfAutoPlaying=false;if(kahfAudio){kahfAudio.pause();kahfAudio=null}
+document.querySelectorAll('.kahf-verse').forEach(v=>v.classList.remove('playing'));
+document.querySelectorAll('.kahf-play-btn').forEach(b=>{b.classList.remove('playing');b.textContent='▶'});
+updateKahfPlayButton()}else{
+kahfAutoPlaying=true;updateKahfPlayButton();
+const firstEl=document.getElementById('kahf-verse-1');
+if(firstEl){const globalAyah=parseInt(firstEl.dataset.global);kahfPlayAyah(1,globalAyah,true)}}}
+
+function kahfStop(){kahfAutoPlaying=false;if(kahfAudio){kahfAudio.pause();kahfAudio=null}
+document.querySelectorAll('.kahf-verse').forEach(v=>v.classList.remove('playing'));
+document.querySelectorAll('.kahf-play-btn').forEach(b=>{b.classList.remove('playing');b.textContent='▶'});
+updateKahfPlayButton()}
+
+function showSection(name){
+['home','quran','hadith','dhikr','links'].forEach(s=>{const el=document.getElementById(s+'-section');if(el)el.hidden=(s!==name)});
+window.scrollTo({top:0,behavior:'smooth'})}
+
+function showHome(){showSection('home')}
+
+let currentAudio=null;let currentPlayBtn=null;
+function stopCurrentAudio(){if(currentAudio){currentAudio.pause();currentAudio.currentTime=0;currentAudio=null}if(currentPlayBtn){currentPlayBtn.textContent='▶';currentPlayBtn=null}}
+
+class QuranReader{
+constructor(){this.currentSurah=null;this.bookmarks=JSON.parse(localStorage.getItem('quran-bookmarks')||'[]');this.loadSurahList();this.attachListeners()}
+async loadSurahList(){const select=document.getElementById('surah-select');try{const res=await fetch('https://api.alquran.cloud/v1/surah');const data=await res.json();select.innerHTML=data.data.map(s=>`<option value="${s.number}">${s.number}. ${s.englishName} — ${s.name}</option>`).join('');if(select.value)this.loadSurah(select.value)}catch{select.innerHTML='<option value="">Could not load surahs. Check connection.</option>'}}
+attachListeners(){document.getElementById('surah-select').addEventListener('change',(e)=>this.loadSurah(e.target.value));document.getElementById('script-select').addEventListener('change',()=>{if(this.currentSurah)this.loadSurah(this.currentSurah)});document.getElementById('reciter-select').addEventListener('change',()=>{if(this.currentSurah)this.loadSurah(this.currentSurah)});document.getElementById('load-surah-btn').addEventListener('click',()=>{const num=document.getElementById('surah-select').value;if(num)this.loadSurah(num)})}
+async loadSurah(n){if(!n)return;this.currentSurah=n;const script=document.getElementById('script-select').value;const c=document.getElementById('quran-verses');c.innerHTML='<div class="loading">Loading verses...</div>';try{const res=await fetch(`https://api.alquran.cloud/v1/surah/${n}/editions/${script},en.sahih`);const data=await res.json();this.renderVerses(data.data[0],data.data[1])}catch{c.innerHTML='<div class="loading">Could not load this surah.</div>'}}
+renderVerses(arabic,english){const c=document.getElementById('quran-verses');const reciter=document.getElementById('reciter-select').value;const sn=arabic.number;
+let html=`<h3 class="section-title">${arabic.number}. ${arabic.englishName} <span style="font-family:var(--font-arabic);color:var(--accent-gold)">${arabic.name}</span></h3>`;
+if(sn!==1&&sn!==9)html+=`<div class="verse-card bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+arabic.ayahs.forEach((ayah,i)=>{const trans=english.ayahs[i];const isBm=this.bookmarks.includes(ayah.number);let audioUrl='',isFallback=false;
+if(reciter==='ar.saudalshuraim'){audioUrl=`https://everyayah.com/data/Saud_Al_Shuraim_128kbps/${String(sn).padStart(3,'0')}${String(ayah.numberInSurah).padStart(3,'0')}.mp3`;isFallback=true}
+else if(reciter==='ar.noreenmuhammadsiddiq'){audioUrl=`https://everyayah.com/data/Noreen_Muhammad_Siddiq_128kbps/${String(sn).padStart(3,'0')}${String(ayah.numberInSurah).padStart(3,'0')}.mp3`;isFallback=true}
+else{audioUrl=`https://cdn.islamic.network/quran/audio/128/${reciter}/${ayah.number}.mp3`}
+html+=`<div class="verse-card"><div class="verse-header"><span class="verse-number">${ayah.numberInSurah}</span><div class="verse-actions"><button class="icon-btn play-btn" data-audio="${audioUrl}" data-fallback="${isFallback}" data-global-ayah="${ayah.number}" title="Play">▶</button><button class="icon-btn bookmark-btn ${isBm?'bookmarked':''}" data-ayah="${ayah.number}" title="Bookmark">★</button></div></div><p class="verse-arabic">${ayah.text}</p><p class="verse-translation">${trans.text}</p></div>`});
+c.innerHTML=html;this.attachVerseListeners()}
+attachVerseListeners(){document.querySelectorAll('.play-btn').forEach(btn=>{btn.addEventListener('click',()=>{
+if(currentPlayBtn===btn&&currentAudio&&!currentAudio.paused){stopCurrentAudio();return}
+stopCurrentAudio();const audio=new Audio(btn.dataset.audio);
+const playFallback=()=>{if(btn.dataset.fallback==='true'){const fbRec=btn.dataset.audio.includes('Shuraim')?'ar.abdurrahmaansudais':'ar.husary';const fbUrl=`https://cdn.islamic.network/quran/audio/128/${fbRec}/${btn.dataset.globalAyah}.mp3`;const fa=new Audio(fbUrl);fa.play().then(()=>{currentAudio=fa;currentPlayBtn=btn;btn.textContent='❚❚';fa.onended=()=>{stopCurrentAudio()}}).catch(()=>{btn.textContent='▶';showToast('Audio blocked in preview — will work once deployed')})}else{btn.textContent='▶';showToast('Could not play audio')}};
+audio.play().then(()=>{currentAudio=audio;currentPlayBtn=btn;btn.textContent='❚❚';audio.onended=()=>{stopCurrentAudio()}}).catch(playFallback)})});
+document.querySelectorAll('.bookmark-btn').forEach(btn=>{btn.addEventListener('click',()=>{const ayah=parseInt(btn.dataset.ayah);const idx=this.bookmarks.indexOf(ayah);if(idx>=0){this.bookmarks.splice(idx,1);btn.classList.remove('bookmarked')}else{this.bookmarks.push(ayah);btn.classList.add('bookmarked')}localStorage.setItem('quran-bookmarks',JSON.stringify(this.bookmarks))})})}}
+
+class HadithBrowser{
+constructor(){this.comments=JSON.parse(localStorage.getItem('hadith-comments')||'{}');this.currentCollectionId=null;this.currentSectionNumber=1;this.renderCollections()}
+renderCollections(){const grid=document.getElementById('collection-grid');grid.innerHTML=HADITH_COLLECTIONS.map(c=>`<div class="collection-card" onclick="window.hadithBrowser.openCollection('${c.id}')"><div class="collection-card-header"><div class="collection-card-title">${c.name}</div><div class="collection-card-arabic">${c.arabic}</div></div><div class="collection-card-count">${c.count.toLocaleString()} hadith</div><div class="collection-card-desc">${c.desc}</div><div class="collection-progress"><div class="collection-progress-bar" style="width:100%"></div></div><div class="collection-card-browse">Browse ›</div></div>`).join('')}
+openCollection(id){this.currentCollectionId=id;const info=HADITH_COLLECTIONS.find(c=>c.id===id);document.getElementById('hadith-main-title').innerText=info.name;document.getElementById('hadith-collections-view').hidden=true;document.getElementById('hadith-section-view').hidden=false;document.getElementById('hadith-section-view').innerHTML=`<div class="hadith-header"><button class="back-btn" onclick="window.hadithBrowser.goBack()">←</button><div style="font-size:.9rem;color:var(--text-secondary)">Back to Collections</div></div><div class="hadith-search"><input type="number" id="hadith-search-input" placeholder="Go to hadith number..." inputmode="numeric"><button onclick="window.hadithBrowser.searchHadith()">Go</button><div class="recent-searches" id="recent-searches"></div></div><div id="hadith-list-container"><div class="loading">Loading hadith...</div></div>`;this.attachSearchListeners();this.loadSection(id,1)}
+attachSearchListeners(){const input=document.getElementById('hadith-search-input');const recents=document.getElementById('recent-searches');if(!input||!recents)return;
+input.addEventListener('focus',()=>{const saved=JSON.parse(localStorage.getItem('hadith-recent-searches')||'[]');const mine=saved.filter(r=>r.collection===this.currentCollectionId);if(mine.length===0){recents.classList.remove('show');return}
+recents.innerHTML=`<div class="recent-searches-header">Recently searched</div>${mine.map(r=>`<div class="recent-search-item" data-num="${r.num}">Hadith #${r.num}</div>`).join('')}`;
+recents.classList.add('show');
+recents.querySelectorAll('.recent-search-item').forEach(el=>{el.addEventListener('click',()=>{input.value=el.dataset.num;recents.classList.remove('show');this.searchHadith()})})});
+input.addEventListener('blur',()=>{setTimeout(()=>recents.classList.remove('show'),200)})}
+goBack(){document.getElementById('hadith-main-title').innerText='📚 Hadith Collections';document.getElementById('hadith-collections-view').hidden=false;document.getElementById('hadith-section-view').hidden=true}
+async randomHadith(){const col=HADITH_COLLECTIONS[Math.floor(Math.random()*HADITH_COLLECTIONS.length)];const num=Math.floor(Math.random()*col.count)+1;
+this.currentCollectionId=col.id;this.currentSectionNumber=1;
+document.getElementById('hadith-main-title').innerText='🎲 Random Hadith';
+document.getElementById('hadith-collections-view').hidden=true;
+document.getElementById('hadith-section-view').hidden=false;
+document.getElementById('hadith-section-view').innerHTML=`<div class="hadith-header"><button class="back-btn" onclick="window.hadithBrowser.goBack()">←</button><div style="font-size:.9rem;color:var(--text-secondary)">Back to Collections</div></div><div id="hadith-list-container"><div class="loading">Picking a random hadith...</div></div>`;
+const container=document.getElementById('hadith-list-container');
+try{const url=`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${col.id}/${num}.min.json`;
+const res=await fetch(url);if(!res.ok)throw new Error('nf');const data=await res.json();
+if(!data.hadiths||data.hadiths.length===0)throw new Error('empty');
+const h=data.hadiths[0];
+this.renderHadiths({hadiths:[h],metadata:data.metadata||{}},col.id,null,`<div style="text-align:center;margin-bottom:1rem;color:var(--text-secondary);font-size:.85rem">From ${col.name}</div>`)
+}catch(e){container.innerHTML='<div class="loading">Could not fetch a random hadith. Try again.</div>'}}
+async searchHadith(){const val=document.getElementById('hadith-search-input').value.trim();if(!val)return;const collectionId=this.currentCollectionId;if(!collectionId)return;
+const container=document.getElementById('hadith-list-container');container.innerHTML='<div class="loading">Searching...</div>';
+try{const url=`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${collectionId}/${val}.min.json`;
+const res=await fetch(url);if(!res.ok)throw new Error('Not found');const data=await res.json();
+if(!data.hadiths||data.hadiths.length===0){container.innerHTML=`<div class="loading">Hadith #${val} not found in this collection.</div>`;return}
+this.saveRecent(collectionId,parseInt(val));
+const backButtonHtml=`<div style="margin-bottom:1rem"><button class="back-btn" onclick="window.hadithBrowser.loadSection('${collectionId}',${this.currentSectionNumber})" style="font-size:.9rem;display:flex;align-items:center;gap:.5rem;background:var(--bg-card);padding:.5rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);width:100%;justify-content:center">← Back to Section ${this.currentSectionNumber}</button></div>`;
+this.renderHadiths(data,collectionId,null,backButtonHtml)
+}catch(e){container.innerHTML=`<div class="loading">Hadith #${val} not found in this collection.</div>`}}
+saveRecent(collectionId,num){let recents=JSON.parse(localStorage.getItem('hadith-recent-searches')||'[]');
+recents=recents.filter(r=>!(r.collection===collectionId&&r.num===num));
+recents.unshift({collection:collectionId,num,timestamp:Date.now()});
+recents=recents.slice(0,10);
+localStorage.setItem('hadith-recent-searches',JSON.stringify(recents))}
+async loadSection(collectionId,sectionNumber){this.currentSectionNumber=sectionNumber;const container=document.getElementById('hadith-list-container');if(!container)return;container.innerHTML='<div class="loading">Loading hadith...</div>';try{const url=`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${collectionId}/sections/${sectionNumber}.json`;const res=await fetch(url);const data=await res.json();this.renderHadiths(data,collectionId,sectionNumber)}catch(e){container.innerHTML='<div class="loading">Could not load hadith. Check connection or try another book.</div>'}}
+getHadithGrade(collectionId,num){if(collectionId==='eng-bukhari'||collectionId==='eng-muslim')return'sahih';if(collectionId==='eng-tirmidhi'||collectionId==='eng-abudawud')return'hasan';return'sahih'}
+renderHadiths(data,collectionId,sectionNumber,customHeaderHtml=''){const container=document.getElementById('hadith-list-container');if(!container)return;let html=customHeaderHtml;
+if(sectionNumber){const sectionName=data.metadata?.section?.[sectionNumber]||data.metadata?.section?.[String(sectionNumber)]||`Book ${sectionNumber}`;html+=`<div style="font-size:.9rem;color:var(--text-secondary);margin-bottom:1rem;text-align:center">Section: ${sectionName}</div>`}
+if(!data.hadiths||data.hadiths.length===0){container.innerHTML=html+'<div class="loading">No hadiths found.</div>';return}
+data.hadiths.forEach(h=>{const key=`${collectionId}-${h.hadithnumber}`;const savedComments=this.comments[key]||[];
+const commentsHtml=savedComments.map(c=>`<div class="comment-item"><div class="comment-meta">${c.isPublic?'🌍 Public':'🔒 Private'} · ${new Date(c.timestamp).toLocaleDateString()}</div><div>${this.escapeHtml(c.text)}</div></div>`).join('');
+const grade=this.getHadithGrade(collectionId,h.hadithnumber);const gradeLabel={sahih:'Sahih',hasan:'Hasan',daif:'Da\'if',maudu:'Maudu\''}[grade];
+html+=`<div class="hadith-card" data-hadith-key="${key}"><div class="hadith-card-header"><span class="hadith-number">${h.hadithnumber}</span><span style="font-size:.75rem;color:var(--text-secondary)">${collectionId.replace('eng-','').toUpperCase()}</span></div><p class="hadith-text">${this.escapeHtml(h.text)}</p><div class="hadith-footer"><span class="grade-badge grade-${grade}">${gradeLabel}</span><button class="hadith-toggle" onclick="toggleComments('${key}')">💬 Thoughts (${savedComments.length})</button></div><div class="comments-area" id="comments-${key}" hidden><div class="comment-list">${commentsHtml||'<div style="font-size:.85rem;color:var(--text-secondary)">No thoughts yet. Be the first to share.</div>'}</div><div class="comment-form"><textarea id="input-${key}" placeholder="Share your reflection on this hadith..."></textarea><div class="comment-form-row"><label class="radio-label"><input type="radio" name="vis-${key}" value="public" checked> 🌍 Public</label><label class="radio-label"><input type="radio" name="vis-${key}" value="private"> 🔒 Private</label><button class="comment-submit" onclick="submitComment('${key}')">Post</button></div></div></div></div>`});
+container.innerHTML=html}
+escapeHtml(text){const div=document.createElement('div');div.textContent=text;return div.innerHTML}
+addComment(key,text,isPublic){if(!this.comments[key])this.comments[key]=[];this.comments[key].push({text,isPublic,timestamp:Date.now()});localStorage.setItem('hadith-comments',JSON.stringify(this.comments))}}
+
+function toggleComments(key){const el=document.getElementById(`comments-${key}`);if(el)el.hidden=!el.hidden}
+
+function submitComment(key){const input=document.getElementById(`input-${key}`);const vis=document.querySelector(`input[name="vis-${key}"]:checked`).value;const text=input.value.trim();if(!text)return;
+const filtered=filterBadWords(text);window.hadithBrowser.addComment(key,filtered,vis==='public');
+const card=document.querySelector(`[data-hadith-key="${key}"]`);const list=card.querySelector('.comment-list');const saved=window.hadithBrowser.comments[key]||[];
+list.innerHTML=saved.map(c=>`<div class="comment-item"><div class="comment-meta">${c.isPublic?'🌍 Public':'🔒 Private'} · Just now</div><div>${window.hadithBrowser.escapeHtml(c.text)}</div></div>`).join('');
+const toggleBtn=card.querySelector('.hadith-toggle');toggleBtn.textContent=`💬 Thoughts (${saved.length})`;
+input.value=''}
+
+class DhikrManager{
+constructor(){this.currentTab='daily';this.todayKey=this.getTodayKey();this.counts=this.loadCounts();this.render()}
+getTodayKey(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+loadCounts(){try{const stored=JSON.parse(localStorage.getItem('dhikr-counts')||'{}');if(stored.date!==this.todayKey)return{date:this.todayKey,counts:{}};return stored}catch{return{date:this.todayKey,counts:{}}}}
+saveCounts(){localStorage.setItem('dhikr-counts',JSON.stringify(this.counts))}
+getCount(id){return this.counts.counts[id]||0}
+increment(id,target){const current=this.getCount(id);if(current>=target)return;this.counts.counts[id]=current+1;this.saveCounts();const justCompleted=(current+1)>=target;this.updateCard(id,target,justCompleted);this.updateSummary();if(justCompleted)this.checkTabCompletion()}
+reset(id,target){this.counts.counts[id]=0;this.saveCounts();this.updateCard(id,target,false);this.updateSummary()}
+switchTab(tab){this.currentTab=tab;document.querySelectorAll('.dhikr-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));this.renderList();this.updateSummary()}
+render(){this.renderList();this.updateSummary()}
+buildCompletionMessageHtml(virtue){return`<div class="dhikr-completion-msg"><span class="msg-dua">بارك الله فيك</span><div class="msg-english">May Allah accept your dhikr</div><div class="msg-virtue">${virtue}</div></div>`}
+renderList(){const list=document.getElementById('dhikr-list');const items=DHIKR_DATA[this.currentTab]||[];
+list.innerHTML=items.map(d=>{const count=this.getCount(d.id);const completed=count>=d.target;const completionMsg=completed?this.buildCompletionMessageHtml(d.virtue):'';
+return`<div class="dhikr-card ${completed?'completed':''}" data-dhikr-id="${d.id}"><div class="dhikr-card-header"><span class="dhikr-virtue-badge">Target: ${d.target}x</span></div><p class="dhikr-arabic">${d.arabic}</p><p class="dhikr-translit">${d.translit}</p><p class="dhikr-translation">${d.translation}</p><div class="dhikr-virtue">✨ ${d.virtue}</div><div class="dhikr-counter-area"><button class="dhikr-reset" onclick="window.dhikrManager.reset('${d.id}',${d.target})" title="Reset counter">↺</button><button class="dhikr-tap ${completed?'completed':''}" data-id="${d.id}" data-target="${d.target}" onclick="window.dhikrManager.increment('${d.id}',${d.target})">${count}</button><div class="dhikr-target"><strong>${d.target}</strong><span>target</span></div></div>${completionMsg}<button class="dhikr-copy" onclick="window.dhikrManager.copyDhikr('${d.id}')">📋 Copy this dhikr</button></div>`}).join('')}
+copyDhikr(id){const items=DHIKR_DATA[this.currentTab]||[];const d=items.find(x=>x.id===id);if(!d)return;
+const text=`${d.arabic}\n\n${d.translit}\n\n"${d.translation}"\n\nVirtue: ${d.virtue}`;
+navigator.clipboard.writeText(text).then(()=>showToast('Dhikr copied to clipboard')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('Dhikr copied to clipboard')}catch{showToast('Could not copy')}ta.remove()})}
+updateCard(id,target,justCompleted){const card=document.querySelector(`[data-dhikr-id="${id}"]`);if(!card)return;const btn=card.querySelector('.dhikr-tap');const count=this.getCount(id);btn.textContent=count;const completed=count>=target;btn.classList.toggle('completed',completed);card.classList.toggle('completed',completed);
+if(justCompleted){btn.classList.remove('completed');void btn.offsetWidth;btn.classList.add('completed');this.spawnConfetti(btn)}
+let msgEl=card.querySelector('.dhikr-completion-msg');const items=DHIKR_DATA[this.currentTab]||[];const dhikr=items.find(d=>d.id===id);
+if(completed&&dhikr){if(!msgEl){const wrapper=document.createElement('div');wrapper.innerHTML=this.buildCompletionMessageHtml(dhikr.virtue);msgEl=wrapper.firstElementChild;const copyBtn=card.querySelector('.dhikr-copy');card.insertBefore(msgEl,copyBtn)}else if(justCompleted){msgEl.style.animation='none';void msgEl.offsetWidth;msgEl.style.animation=''}}else if(!completed&&msgEl){msgEl.remove()}}
+spawnConfetti(btn){const particles=8;for(let i=0;i<particles;i++){const angle=(Math.PI*2*i)/particles-Math.PI/2;const distance=55+Math.random()*25;const tx=Math.cos(angle)*distance;const ty=Math.sin(angle)*distance;const p=document.createElement('span');p.className='confetti-particle';p.style.setProperty('--tx',tx+'px');p.style.setProperty('--ty',ty+'px');p.style.left='50%';p.style.top='50%';p.style.marginLeft='-5px';p.style.marginTop='-5px';btn.appendChild(p);setTimeout(()=>p.remove(),1600)}}
+updateSummary(){const items=DHIKR_DATA[this.currentTab]||[];let completed=0;items.forEach(d=>{if(this.getCount(d.id)>=d.target)completed++});const total=items.length;const summary=document.getElementById('dhikr-summary');if(summary)summary.innerHTML=`Progress today: <strong>${completed} / ${total}</strong> completed`}
+checkTabCompletion(){const items=DHIKR_DATA[this.currentTab]||[];const allComplete=items.every(d=>this.getCount(d.id)>=d.target);if(!allComplete)return;const key=`dhikr-celebration-${this.currentTab}-${this.todayKey}`;if(localStorage.getItem(key))return;localStorage.setItem(key,'1');this.showCelebration()}
+showCelebration(){const tabConfig={daily:{name:'Daily Dhikr',icon:'🌙',hadith:'The Prophet ﷺ said: "Whoever says SubhanAllah, Alhamdulillah, and Allahu Akbar 33 times each after every prayer has his sins forgiven." — Sahih Muslim'},morning:{name:'Morning Adhkar',icon:'🌅',hadith:'The Prophet ﷺ said: "Whoever recites the morning adhkar has protection until the evening." — Hisn al-Muslim'},evening:{name:'Evening Adhkar',icon:'🌆',hadith:'The Prophet ﷺ said: "Whoever recites the evening adhkar has protection until the morning." — Hisn al-Muslim'}};
+const cfg=tabConfig[this.currentTab];const overlay=document.createElement('div');overlay.className='celebration-overlay';
+overlay.innerHTML=`<div class="celebration-card"><span class="celebration-icon">${cfg.icon}</span><span class="celebration-arabic">مَا شَاءَ اللَّهُ</span><h3 class="celebration-title">MashaAllah!</h3><p class="celebration-lead">You have completed your ${cfg.name} for today.</p><p class="celebration-text">${cfg.hadith}</p><button class="celebration-btn">Continue</button></div>`;
+overlay.querySelector('.celebration-btn').addEventListener('click',()=>overlay.remove());
+overlay.addEventListener('click',(e)=>{if(e.target===overlay)overlay.remove()});
+document.body.appendChild(overlay)}}
+
+window.kahfTogglePlayAll=kahfTogglePlayAll;
+window.kahfStop=kahfStop;
+
+function setupPWA(){
+try{
+const manifest={name:"Al-Jumu'ah",short_name:"Jumu'ah",start_url:".",display:"standalone",background_color:"#0B3D2E",theme_color:"#0B3D2E",icons:[{src:"data:image/svg+xml,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" fill="#0B3D2E"/><text x="96" y="130" font-family="serif" font-size="110" fill="#C9A227" text-anchor="middle">ج</text></svg>`),sizes:"192x192",type:"image/svg+xml"}]};
+const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+const url=URL.createObjectURL(blob);
+const link=document.createElement('link');
+link.rel='manifest';
+link.href=url;
+document.head.appendChild(link);
+}catch(e){console.log('manifest failed',e)}
+if('serviceWorker' in navigator){
+navigator.serviceWorker.register('sw.js').catch(err=>{console.log('SW registration skipped:',err.message)})}}
+
+document.addEventListener('DOMContentLoaded',()=>{
+new ThemeManager();
+renderHome();
+window.quranReader=new QuranReader();
+window.hadithBrowser=new HadithBrowser();
+window.dhikrManager=new DhikrManager();
+setupPWA();
+});
+</script>
+</body>
+  </html>
