@@ -111,6 +111,8 @@ main{flex:1;max-width:1100px;margin:0 auto;padding:1.5rem 1rem;width:100%}
 .radio-label{display:flex;align-items:center;gap:.3rem;font-size:.85rem;color:var(--text-secondary);cursor:pointer}
 .comment-submit{padding:.4rem 1rem;background:var(--accent-emerald);color:#fff;border:none;border-radius:999px;font-family:var(--font-body);font-size:.85rem;cursor:pointer}
 [data-theme="dark"] .comment-submit{background:var(--accent-gold);color:#0A0F0D}
+.comment-signin-msg{font-size:.85rem;color:var(--text-secondary);padding:.6rem;background:var(--bg-primary);border-radius:var(--radius-sm);text-align:center}
+.comment-signin-msg a{color:var(--accent-gold);cursor:pointer;font-weight:600;text-decoration:underline}
 .dhikr-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;background:var(--bg-card);padding:.4rem;border-radius:999px;border:1px solid var(--border-subtle);overflow-x:auto}
 .dhikr-tab{flex:1;padding:.6rem 1rem;border-radius:999px;border:none;background:transparent;color:var(--text-secondary);font-family:var(--font-body);font-size:.9rem;font-weight:600;cursor:pointer;transition:var(--transition-smooth);white-space:nowrap}
 .dhikr-tab.active{background:var(--accent-emerald);color:#fff}
@@ -706,9 +708,35 @@ stopCurrentAudio();const audio=new Audio(btn.dataset.audio);
 audio.play().then(()=>{currentAudio=audio;currentPlayBtn=btn;btn.textContent='❚❚';audio.onended=()=>{stopCurrentAudio()}}).catch(()=>{btn.textContent='▶';showToast('Audio unavailable — check connection')})})});
 document.querySelectorAll('.bookmark-btn').forEach(btn=>{btn.addEventListener('click',()=>{const ayah=parseInt(btn.dataset.ayah);const idx=this.bookmarks.indexOf(ayah);if(idx>=0){this.bookmarks.splice(idx,1);btn.classList.remove('bookmarked')}else{this.bookmarks.push(ayah);btn.classList.add('bookmarked')}localStorage.setItem('quran-bookmarks',JSON.stringify(this.bookmarks))})})}}
 
+let db = null;
+try {
+  if (window.firebase && firebase.apps && firebase.apps.length) {
+    db = firebase.firestore();
+  }
+} catch(e) { console.log('Firestore not available', e); }
+
 class HadithBrowser{
-constructor(){this.comments=JSON.parse(localStorage.getItem('hadith-comments')||'{}');this.currentCollectionId=null;this.currentSectionNumber=1;this.renderCollections()}
+constructor(){this.comments={};this.currentCollectionId=null;this.currentSectionNumber=1;this.renderCollections()}
 renderCollections(){const grid=document.getElementById('collection-grid');grid.innerHTML=HADITH_COLLECTIONS.map(c=>`<div class="collection-card" onclick="window.hadithBrowser.openCollection('${c.id}')"><div class="collection-card-header"><div class="collection-card-title">${c.name}</div><div class="collection-card-arabic">${c.arabic}</div></div><div class="collection-card-count">${c.count.toLocaleString()} hadith</div><div class="collection-card-desc">${c.desc}</div><div class="collection-progress"><div class="collection-progress-bar" style="width:100%"></div></div><div class="collection-card-browse">Browse ›</div></div>`).join('')}
+async loadCommentsForKeys(keys){
+  this.comments={};
+  if(!db||!keys||keys.length===0)return;
+  try{
+    const chunks=[];
+    for(let i=0;i<keys.length;i+=10)chunks.push(keys.slice(i,i+10));
+    const results=await Promise.all(chunks.map(chunk=>db.collection('comments').where('hadithKey','in',chunk).get()));
+    results.forEach(snap=>{snap.forEach(doc=>{const data=doc.data();
+      const isMine=window.__currentUser&&data.userId===window.__currentUser.uid;
+      if(data.isPublic||isMine){
+        if(!this.comments[data.hadithKey])this.comments[data.hadithKey]=[];
+        let ts=data.timestamp;
+        if(ts&&typeof ts.toDate==='function')ts=ts.toDate().getTime();
+        this.comments[data.hadithKey].push({...data,id:doc.id,timestamp:ts||Date.now()});
+      }
+    })});
+    Object.keys(this.comments).forEach(k=>this.comments[k].sort((a,b)=>(a.timestamp||0)-(b.timestamp||0)));
+  }catch(e){console.log('load comments failed',e);this.comments={}}
+}
 openCollection(id){this.currentCollectionId=id;const info=HADITH_COLLECTIONS.find(c=>c.id===id);document.getElementById('hadith-main-title').innerText=info.name;document.getElementById('hadith-collections-view').hidden=true;document.getElementById('hadith-section-view').hidden=false;document.getElementById('hadith-section-view').innerHTML=`<div class="hadith-header"><button class="back-btn" onclick="window.hadithBrowser.goBack()">←</button><div style="font-size:.9rem;color:var(--text-secondary)">Back to Collections</div></div><div class="hadith-search"><input type="number" id="hadith-search-input" placeholder="Go to hadith number..." inputmode="numeric"><button onclick="window.hadithBrowser.searchHadith()">Go</button><div class="recent-searches" id="recent-searches"></div></div><div id="hadith-list-container"><div class="loading">Loading hadith...</div></div>`;this.attachSearchListeners();this.loadSection(id,1)}
 attachSearchListeners(){const input=document.getElementById('hadith-search-input');const recents=document.getElementById('recent-searches');if(!input||!recents)return;
 input.addEventListener('focus',()=>{const saved=JSON.parse(localStorage.getItem('hadith-recent-searches')||'[]');const mine=saved.filter(r=>r.collection===this.currentCollectionId);if(mine.length===0){recents.classList.remove('show');return}
@@ -728,6 +756,8 @@ try{const url=`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${c
 const res=await fetch(url);if(!res.ok)throw new Error('nf');const data=await res.json();
 if(!data.hadiths||data.hadiths.length===0)throw new Error('empty');
 const h=data.hadiths[0];
+const key=`${col.id}-${h.hadithnumber}`;
+await this.loadCommentsForKeys([key]);
 this.renderHadiths({hadiths:[h],metadata:data.metadata||{}},col.id,null,`<div style="text-align:center;margin-bottom:1rem;color:var(--text-secondary);font-size:.85rem">From ${col.name}</div>`)
 }catch(e){container.innerHTML='<div class="loading">Could not fetch a random hadith. Try again.</div>'}}
 async searchHadith(){const val=document.getElementById('hadith-search-input').value.trim();if(!val)return;const collectionId=this.currentCollectionId;if(!collectionId)return;
@@ -736,6 +766,8 @@ try{const url=`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${c
 const res=await fetch(url);if(!res.ok)throw new Error('Not found');const data=await res.json();
 if(!data.hadiths||data.hadiths.length===0){container.innerHTML=`<div class="loading">Hadith #${val} not found in this collection.</div>`;return}
 this.saveRecent(collectionId,parseInt(val));
+const keys=data.hadiths.map(h=>`${collectionId}-${h.hadithnumber}`);
+await this.loadCommentsForKeys(keys);
 const backButtonHtml=`<div style="margin-bottom:1rem"><button class="back-btn" onclick="window.hadithBrowser.loadSection('${collectionId}',${this.currentSectionNumber})" style="font-size:.9rem;display:flex;align-items:center;gap:.5rem;background:var(--bg-card);padding:.5rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);width:100%;justify-content:center">← Back to Section ${this.currentSectionNumber}</button></div>`;
 this.renderHadiths(data,collectionId,null,backButtonHtml)
 }catch(e){container.innerHTML=`<div class="loading">Hadith #${val} not found in this collection.</div>`}}
@@ -744,27 +776,102 @@ recents=recents.filter(r=>!(r.collection===collectionId&&r.num===num));
 recents.unshift({collection:collectionId,num,timestamp:Date.now()});
 recents=recents.slice(0,10);
 localStorage.setItem('hadith-recent-searches',JSON.stringify(recents))}
-async loadSection(collectionId,sectionNumber){this.currentSectionNumber=sectionNumber;const container=document.getElementById('hadith-list-container');if(!container)return;container.innerHTML='<div class="loading">Loading hadith...</div>';try{const url=`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${collectionId}/sections/${sectionNumber}.json`;const res=await fetch(url);const data=await res.json();this.renderHadiths(data,collectionId,sectionNumber)}catch(e){container.innerHTML='<div class="loading">Could not load hadith. Check connection or try another book.</div>'}}
+async loadSection(collectionId,sectionNumber){this.currentSectionNumber=sectionNumber;const container=document.getElementById('hadith-list-container');if(!container)return;container.innerHTML='<div class="loading">Loading hadith...</div>';try{const url=`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${collectionId}/sections/${sectionNumber}.json`;const res=await fetch(url);const data=await res.json();
+if(data.hadiths&&data.hadiths.length>0){const keys=data.hadiths.map(h=>`${collectionId}-${h.hadithnumber}`);await this.loadCommentsForKeys(keys)}
+this.renderHadiths(data,collectionId,sectionNumber)}catch(e){container.innerHTML='<div class="loading">Could not load hadith. Check connection or try another book.</div>'}}
 getHadithGrade(collectionId,num){if(collectionId==='eng-bukhari'||collectionId==='eng-muslim')return'sahih';if(collectionId==='eng-tirmidhi'||collectionId==='eng-abudawud')return'hasan';return'sahih'}
 renderHadiths(data,collectionId,sectionNumber,customHeaderHtml=''){const container=document.getElementById('hadith-list-container');if(!container)return;let html=customHeaderHtml;
 if(sectionNumber){const sectionName=data.metadata?.section?.[sectionNumber]||data.metadata?.section?.[String(sectionNumber)]||`Book ${sectionNumber}`;html+=`<div style="font-size:.9rem;color:var(--text-secondary);margin-bottom:1rem;text-align:center">Section: ${sectionName}</div>`}
 if(!data.hadiths||data.hadiths.length===0){container.innerHTML=html+'<div class="loading">No hadiths found.</div>';return}
+const isSignedIn=!!window.__currentUser;
 data.hadiths.forEach(h=>{const key=`${collectionId}-${h.hadithnumber}`;const savedComments=this.comments[key]||[];
-const commentsHtml=savedComments.map(c=>`<div class="comment-item"><div class="comment-meta">${c.isPublic?'🌍 Public':'🔒 Private'} · ${new Date(c.timestamp).toLocaleDateString()}</div><div>${this.escapeHtml(c.text)}</div></div>`).join('');
+const commentsHtml=savedComments.map(c=>{
+  const isMine=window.__currentUser&&c.userId===window.__currentUser.uid;
+  const name=c.userName||'Anonymous';
+  const when=c.timestamp?new Date(c.timestamp).toLocaleDateString():'';
+  return `<div class="comment-item"><div class="comment-meta">${c.isPublic?'🌍':'🔒'} ${this.escapeHtml(name)} · ${when}${isMine?` · <a onclick="window.deleteComment('${c.id}','${key}')" style="color:#d9534f;cursor:pointer;text-decoration:underline">Delete</a>`:''}</div><div>${this.escapeHtml(c.text)}</div></div>`;
+}).join('');
 const grade=this.getHadithGrade(collectionId,h.hadithnumber);const gradeLabel={sahih:'Sahih',hasan:'Hasan',daif:'Da\'if',maudu:'Maudu\''}[grade];
-html+=`<div class="hadith-card" data-hadith-key="${key}"><div class="hadith-card-header"><span class="hadith-number">${h.hadithnumber}</span><span style="font-size:.75rem;color:var(--text-secondary)">${collectionId.replace('eng-','').toUpperCase()}</span></div><p class="hadith-text">${this.escapeHtml(h.text)}</p><div class="hadith-footer"><span class="grade-badge grade-${grade}">${gradeLabel}</span><button class="hadith-toggle" onclick="toggleComments('${key}')">💬 Thoughts (${savedComments.length})</button></div><div class="comments-area" id="comments-${key}" hidden><div class="comment-list">${commentsHtml||'<div style="font-size:.85rem;color:var(--text-secondary)">No thoughts yet. Be the first to share.</div>'}</div><div class="comment-form"><textarea id="input-${key}" placeholder="Share your reflection on this hadith..."></textarea><div class="comment-form-row"><label class="radio-label"><input type="radio" name="vis-${key}" value="public" checked> 🌍 Public</label><label class="radio-label"><input type="radio" name="vis-${key}" value="private"> 🔒 Private</label><button class="comment-submit" onclick="submitComment('${key}')">Post</button></div></div></div></div>`});
+const formHtml=isSignedIn
+  ?`<div class="comment-form"><textarea id="input-${key}" placeholder="Share your reflection on this hadith..."></textarea><div class="comment-form-row"><label class="radio-label"><input type="radio" name="vis-${key}" value="public" checked> 🌍 Public</label><label class="radio-label"><input type="radio" name="vis-${key}" value="private"> 🔒 Private</label><button class="comment-submit" onclick="submitComment('${key}')">Post</button></div></div>`
+  :`<div class="comment-signin-msg">Please <a onclick="window.__authOpenModal('login')">sign in</a> to leave a reflection.</div>`;
+html+=`<div class="hadith-card" data-hadith-key="${key}"><div class="hadith-card-header"><span class="hadith-number">${h.hadithnumber}</span><span style="font-size:.75rem;color:var(--text-secondary)">${collectionId.replace('eng-','').toUpperCase()}</span></div><p class="hadith-text">${this.escapeHtml(h.text)}</p><div class="hadith-footer"><span class="grade-badge grade-${grade}">${gradeLabel}</span><button class="hadith-toggle" onclick="toggleComments('${key}')">💬 Thoughts (${savedComments.length})</button></div><div class="comments-area" id="comments-${key}" hidden><div class="comment-list">${commentsHtml||'<div style="font-size:.85rem;color:var(--text-secondary)">No thoughts yet. Be the first to share.</div>'}</div>${formHtml}</div></div>`});
 container.innerHTML=html}
-escapeHtml(text){const div=document.createElement('div');div.textContent=text;return div.innerHTML}
-addComment(key,text,isPublic){if(!this.comments[key])this.comments[key]=[];this.comments[key].push({text,isPublic,timestamp:Date.now()});localStorage.setItem('hadith-comments',JSON.stringify(this.comments))}}
+escapeHtml(text){const div=document.createElement('div');div.textContent=text;return div.innerHTML}}
 
 function toggleComments(key){const el=document.getElementById(`comments-${key}`);if(el)el.hidden=!el.hidden}
 
-function submitComment(key){const input=document.getElementById(`input-${key}`);const vis=document.querySelector(`input[name="vis-${key}"]:checked`).value;const text=input.value.trim();if(!text)return;
-const filtered=filterBadWords(text);window.hadithBrowser.addComment(key,filtered,vis==='public');
-const card=document.querySelector(`[data-hadith-key="${key}"]`);const list=card.querySelector('.comment-list');const saved=window.hadithBrowser.comments[key]||[];
-list.innerHTML=saved.map(c=>`<div class="comment-item"><div class="comment-meta">${c.isPublic?'🌍 Public':'🔒 Private'} · Just now</div><div>${window.hadithBrowser.escapeHtml(c.text)}</div></div>`).join('');
-const toggleBtn=card.querySelector('.hadith-toggle');toggleBtn.textContent=`💬 Thoughts (${saved.length})`;
-input.value=''}
+async function submitComment(key){
+  if(!window.__currentUser){showToast('Please sign in to comment');return}
+  if(!db){showToast('Comments unavailable');return}
+  const input=document.getElementById(`input-${key}`);
+  if(!input)return;
+  const visEl=document.querySelector(`input[name="vis-${key}"]:checked`);
+  const vis=visEl?visEl.value:'public';
+  const text=input.value.trim();
+  if(!text)return;
+  const filtered=filterBadWords(text);
+  const isPublic=vis==='public';
+  try{
+    const docRef=await db.collection('comments').add({
+      hadithKey:key,
+      text:filtered,
+      isPublic:isPublic,
+      userId:window.__currentUser.uid,
+      userName:window.__currentUser.displayName||'Anonymous',
+      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    const newComment={
+      id:docRef.id,
+      text:filtered,
+      isPublic:isPublic,
+      userId:window.__currentUser.uid,
+      userName:window.__currentUser.displayName||'Anonymous',
+      timestamp:Date.now()
+    };
+    if(!window.hadithBrowser.comments[key])window.hadithBrowser.comments[key]=[];
+    window.hadithBrowser.comments[key].push(newComment);
+    const card=document.querySelector(`[data-hadith-key="${key}"]`);
+    const list=card.querySelector('.comment-list');
+    const saved=window.hadithBrowser.comments[key];
+    list.innerHTML=saved.map(c=>{
+      const isMine=window.__currentUser&&c.userId===window.__currentUser.uid;
+      const name=c.userName||'Anonymous';
+      const when=c.timestamp?new Date(c.timestamp).toLocaleDateString():'';
+      return `<div class="comment-item"><div class="comment-meta">${c.isPublic?'🌍':'🔒'} ${window.hadithBrowser.escapeHtml(name)} · ${when}${isMine?` · <a onclick="window.deleteComment('${c.id}','${key}')" style="color:#d9534f;cursor:pointer;text-decoration:underline">Delete</a>`:''}</div><div>${window.hadithBrowser.escapeHtml(c.text)}</div></div>`;
+    }).join('');
+    const toggleBtn=card.querySelector('.hadith-toggle');
+    toggleBtn.textContent=`💬 Thoughts (${saved.length})`;
+    input.value='';
+    showToast('Posted');
+  }catch(e){
+    console.log('save comment failed',e);
+    showToast('Could not save comment');
+  }
+}
+
+window.deleteComment=async function(commentId,hadithKey){
+  if(!db||!window.__currentUser)return;
+  if(!confirm('Delete this comment?'))return;
+  try{
+    await db.collection('comments').doc(commentId).delete();
+    const arr=window.hadithBrowser.comments[hadithKey]||[];
+    const idx=arr.findIndex(c=>c.id===commentId);
+    if(idx>=0)arr.splice(idx,1);
+    const card=document.querySelector(`[data-hadith-key="${hadithKey}"]`);
+    if(!card)return;
+    const list=card.querySelector('.comment-list');
+    list.innerHTML=arr.map(c=>{
+      const isMine=window.__currentUser&&c.userId===window.__currentUser.uid;
+      const name=c.userName||'Anonymous';
+      const when=c.timestamp?new Date(c.timestamp).toLocaleDateString():'';
+      return `<div class="comment-item"><div class="comment-meta">${c.isPublic?'🌍':'🔒'} ${window.hadithBrowser.escapeHtml(name)} · ${when}${isMine?` · <a onclick="window.deleteComment('${c.id}','${hadithKey}')" style="color:#d9534f;cursor:pointer;text-decoration:underline">Delete</a>`:''}</div><div>${window.hadithBrowser.escapeHtml(c.text)}</div></div>`;
+    }).join('')||'<div style="font-size:.85rem;color:var(--text-secondary)">No thoughts yet. Be the first to share.</div>';
+    const toggleBtn=card.querySelector('.hadith-toggle');
+    toggleBtn.textContent=`💬 Thoughts (${arr.length})`;
+    showToast('Deleted');
+  }catch(e){console.log(e);showToast('Could not delete')}
+};
 
 class DhikrManager{
 constructor(){this.currentTab='daily';this.todayKey=this.getTodayKey();this.counts=this.loadCounts();this.render()}
@@ -927,4 +1034,4 @@ setupPWA();
 })();
 </script>
 </body>
-  </html>
+            </html> 
