@@ -226,6 +226,24 @@ main{flex:1;max-width:1100px;margin:0 auto;padding:1.5rem 1rem;width:100%}
 .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent-emerald);color:#fff;padding:.75rem 1.5rem;border-radius:999px;font-size:.85rem;z-index:99999;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:toastIn .3s ease}
 [data-theme="dark"] .toast{background:var(--accent-gold);color:#0A0F0D}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+.auth-btn{background:var(--accent-emerald);color:#fff;border:none;padding:.4rem 1rem;border-radius:999px;font-family:var(--font-body);font-size:.85rem;cursor:pointer;transition:var(--transition-smooth)}
+.auth-btn:hover{background:var(--accent-emerald-light)}
+[data-theme="dark"] .auth-btn{background:var(--accent-gold);color:#0A0F0D}
+.auth-user{display:flex;align-items:center;gap:.4rem}
+.auth-user-badge{width:32px;height:32px;border-radius:50%;background:var(--accent-gold);color:#0A0F0D;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+.auth-modal-overlay{position:fixed;inset:0;background:rgba(11,61,46,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:99999;padding:1rem}
+.auth-modal{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:2rem 1.5rem;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative}
+.auth-modal h2{color:var(--accent-emerald);font-size:1.3rem;margin-bottom:1.25rem;text-align:center}
+[data-theme="dark"] .auth-modal h2{color:var(--accent-gold)}
+.auth-modal input{width:100%;padding:.7rem;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-body);font-size:.95rem;margin-bottom:.75rem;box-sizing:border-box}
+.auth-modal button[type="submit"]{width:100%;padding:.75rem;background:var(--accent-emerald);color:#fff;border:none;border-radius:999px;font-family:var(--font-body);font-size:1rem;font-weight:600;cursor:pointer;margin-top:.5rem;transition:var(--transition-smooth)}
+.auth-modal button[type="submit"]:hover{background:var(--accent-emerald-light)}
+[data-theme="dark"] .auth-modal button[type="submit"]{background:var(--accent-gold);color:#0A0F0D}
+.auth-modal button[type="submit"]:disabled{opacity:.6;cursor:wait}
+.auth-modal .auth-error{color:#d9534f;font-size:.85rem;margin-top:.5rem;text-align:center;min-height:1.2em}
+.auth-modal .auth-switch{text-align:center;margin-top:1rem;font-size:.85rem;color:var(--text-secondary)}
+.auth-modal .auth-switch a{color:var(--accent-gold);cursor:pointer;text-decoration:underline;font-weight:600}
+.auth-modal .auth-close{position:absolute;top:.75rem;right:.75rem;background:transparent;border:none;color:var(--text-secondary);font-size:1.3rem;cursor:pointer;width:32px;height:32px}
 @media (max-width:600px){
 .header-inner{flex-direction:column;align-items:flex-start}
 .main-nav{width:100%;justify-content:center}
@@ -389,6 +407,9 @@ main{flex:1;max-width:1100px;margin:0 auto;padding:1.5rem 1rem;width:100%}
   <p>Al-Jumu'ah — Built for the Ummah. <span class="footer-dua">بارك الله فيكم</span></p>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 <script>
 window.FIREBASE_CONFIG={apiKey:"AIzaSyC0_UOlhEhdueJLIDrMnE4liCuvPvdpezA",authDomain:"jumah-website.firebaseapp.com",projectId:"jumah-website",storageBucket:"jumah-website.firebasestorage.app",messagingSenderId:"139676383479",appId:"1:139676383479:web:2082e48d30d64f51113bf2",measurementId:"G-7Y1PYBCPY9"};
 
@@ -461,7 +482,6 @@ function filterBadWords(text){const BAD=['damn','hell','crap','stupid','idiot','
 
 function showToast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500)}
 
-// ---- Shuraim audio URL helper ----
 function shuraimUrl(surahNum, ayahNum){
   const s = String(surahNum).padStart(3,'0');
   const a = String(ayahNum).padStart(3,'0');
@@ -488,7 +508,6 @@ const days=Math.floor(diff/86400000);const hours=Math.floor((diff%86400000)/3600
 el.textContent=`${days}d ${String(hours).padStart(2,'0')}h ${String(mins).padStart(2,'0')}m ${String(secs).padStart(2,'0')}s`};
 update();if(countdownInterval)clearInterval(countdownInterval);countdownInterval=setInterval(update,1000)}
 
-// ------ KAHF AUDIO (Shuraim verse-by-verse with auto-advance) ------
 let kahfAudio=null;
 let kahfAutoPlaying=false;
 let kahfCurrentAyah=null;
@@ -802,6 +821,110 @@ window.hadithBrowser=new HadithBrowser();
 window.dhikrManager=new DhikrManager();
 setupPWA();
 });
+</script>
+<script>
+(function() {
+  if (!window.firebase) { console.log('Firebase SDK not loaded'); return; }
+  if (!firebase.apps.length) {
+    try { firebase.initializeApp(window.FIREBASE_CONFIG); } catch(e) { console.log('init', e); return; }
+  }
+  const auth = firebase.auth();
+
+  function injectAuthUI() {
+    const controls = document.getElementById('theme-controls');
+    if (!controls || document.getElementById('auth-container')) return;
+    const c = document.createElement('div');
+    c.id = 'auth-container';
+    c.style.cssText = 'display:flex;align-items:center;gap:0.5rem';
+    controls.parentElement.insertBefore(c, controls.nextSibling);
+  }
+
+  function updateAuthUI(user) {
+    const c = document.getElementById('auth-container');
+    if (!c) return;
+    if (user) {
+      const initial = (user.displayName || user.email || '?').charAt(0).toUpperCase();
+      c.innerHTML = '<div class="auth-user"><div class="auth-user-badge" title="' + (user.email||'') + '">' + initial + '</div><button class="auth-btn" onclick="window.__authSignOut()">Sign out</button></div>';
+    } else {
+      c.innerHTML = '<button class="auth-btn" onclick="window.__authOpenModal(\'login\')">Sign in</button>';
+    }
+  }
+
+  window.__authOpenModal = function(mode) {
+    const existing = document.getElementById('auth-modal-overlay');
+    if (existing) existing.remove();
+    const overlay = document.createElement('div');
+    overlay.className = 'auth-modal-overlay';
+    overlay.id = 'auth-modal-overlay';
+    const isLogin = mode === 'login';
+    overlay.innerHTML = '<div class="auth-modal" onclick="event.stopPropagation()">'
+      + '<button class="auth-close" onclick="window.__authCloseModal()">✕</button>'
+      + '<h2>' + (isLogin ? 'Welcome back' : 'Create your account') + '</h2>'
+      + '<form id="auth-form">'
+      + (!isLogin ? '<input type="text" id="auth-name" placeholder="Your name" autocomplete="name">' : '')
+      + '<input type="email" id="auth-email" placeholder="Email" autocomplete="email" required>'
+      + '<input type="password" id="auth-password" placeholder="Password (min 6 chars)" autocomplete="' + (isLogin ? 'current-password' : 'new-password') + '" required minlength="6">'
+      + '<div class="auth-error" id="auth-error"></div>'
+      + '<button type="submit">' + (isLogin ? 'Sign in' : 'Create account') + '</button>'
+      + '</form>'
+      + '<div class="auth-switch">'
+      + (isLogin
+        ? 'New here? <a onclick="window.__authOpenModal(\'signup\')">Create an account</a>'
+        : 'Already have an account? <a onclick="window.__authOpenModal(\'login\')">Sign in</a>')
+      + '</div></div>';
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) window.__authCloseModal(); });
+    document.body.appendChild(overlay);
+
+    document.getElementById('auth-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const nameEl = document.getElementById('auth-name');
+      const name = nameEl ? nameEl.value.trim() : '';
+      const errEl = document.getElementById('auth-error');
+      errEl.textContent = '';
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Please wait...';
+      try {
+        if (isLogin) {
+          await auth.signInWithEmailAndPassword(email, password);
+        } else {
+          const cred = await auth.createUserWithEmailAndPassword(email, password);
+          if (name && cred.user) await cred.user.updateProfile({ displayName: name });
+        }
+        window.__authCloseModal();
+        if (typeof showToast === 'function') showToast(isLogin ? 'Welcome back!' : 'Account created — welcome!');
+      } catch (err) {
+        let msg = err.message || 'Something went wrong.';
+        if (err.code === 'auth/email-already-in-use') msg = 'That email is already registered.';
+        else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'Wrong email or password.';
+        else if (err.code === 'auth/user-not-found') msg = 'No account found with that email.';
+        else if (err.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
+        else if (err.code === 'auth/invalid-email') msg = 'Please enter a valid email.';
+        errEl.textContent = msg;
+        submitBtn.disabled = false;
+        submitBtn.textContent = isLogin ? 'Sign in' : 'Create account';
+      }
+    });
+  };
+
+  window.__authCloseModal = function() {
+    const m = document.getElementById('auth-modal-overlay');
+    if (m) m.remove();
+  };
+
+  window.__authSignOut = async function() {
+    try { await auth.signOut(); if (typeof showToast === 'function') showToast('Signed out'); } catch(e) { console.log(e); }
+  };
+
+  injectAuthUI();
+  auth.onAuthStateChanged(function(user) {
+    updateAuthUI(user);
+    window.__currentUser = user;
+    console.log('Auth state:', user ? user.email : 'signed out');
+  });
+})();
 </script>
 </body>
   </html>
